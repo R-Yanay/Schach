@@ -7,11 +7,15 @@ import ch.zhaw.schach.model.Piece;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -60,22 +64,26 @@ public class ChessView extends Application {
         subtitle.setFont(Font.font(14));
         subtitle.setTextFill(Color.web("#cccccc"));
 
-        // Schwierigkeits-Buttons
+        // Schwierigkeits-Buttons nebeneinander
+        HBox difficultyBox = new HBox(10);
+        difficultyBox.setAlignment(Pos.CENTER);
         Button easyBtn = createDifficultyButton("Easy", 1);
         Button mediumBtn = createDifficultyButton("Medium", 3);
         Button hardBtn = createDifficultyButton("Hard", 5);
+        difficultyBox.getChildren().addAll(easyBtn, mediumBtn, hardBtn);
 
         // Start-Button
         Button startBtn = new Button("New Game");
-        startBtn.setFont(Font.font(16));
-        startBtn.setPrefWidth(180);
+        startBtn.setFont(Font.font(14));
+        startBtn.setPrefWidth(140);
         startBtn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; "
-                + "-fx-background-radius: 5; -fx-padding: 10 20;");
+                + "-fx-background-radius: 5; -fx-padding: 8 16;");
         startBtn.setOnAction(e -> startGame());
 
-        root.getChildren().addAll(title, subtitle, easyBtn, mediumBtn, hardBtn, startBtn);
+        root.getChildren().addAll(title, subtitle, difficultyBox, new Region(), startBtn);
+        VBox.setVgrow((Region) root.getChildren().get(3), Priority.ALWAYS);
 
-        Scene scene = new Scene(root, 400, 450);
+        Scene scene = new Scene(root, 400, 380);
         mainStage.setTitle("Chess");
         mainStage.setScene(scene);
         mainStage.setResizable(false);
@@ -87,10 +95,10 @@ public class ChessView extends Application {
      */
     private Button createDifficultyButton(String text, int depth) {
         Button btn = new Button(text);
-        btn.setFont(Font.font(16));
-        btn.setPrefWidth(180);
+        btn.setFont(Font.font(13));
+        btn.setPrefWidth(90);
         btn.setStyle("-fx-background-color: #444444; -fx-text-fill: white; "
-                + "-fx-background-radius: 5; -fx-padding: 10 20;");
+                + "-fx-background-radius: 5; -fx-padding: 6 12;");
 
         btn.setOnAction(e -> {
             selectedSearchDepth = depth;
@@ -105,17 +113,17 @@ public class ChessView extends Application {
      * Aktualisiert die Farbe der Schwierigkeits-Buttons.
      */
     private void updateDifficultyButtons(Button selected) {
-        // Finde alle Buttons im Parent und aktualisiere die Styles
-        VBox parent = (VBox) selected.getParent();
+        // Finde alle Buttons in der HBox und aktualisiere die Styles
+        HBox parent = (HBox) selected.getParent();
         for (javafx.scene.Node child : parent.getChildren()) {
             if (child instanceof Button) {
                 Button btn = (Button) child;
                 if (btn == selected) {
-                    btn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; "
-                            + "-fx-background-radius: 5; -fx-padding: 10 20;");
-                } else if (!btn.getText().equals("New Game")) {
+                    btn.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; "
+                            + "-fx-background-radius: 5; -fx-padding: 6 12;");
+                } else {
                     btn.setStyle("-fx-background-color: #444444; -fx-text-fill: white; "
-                            + "-fx-background-radius: 5; -fx-padding: 10 20;");
+                            + "-fx-background-radius: 5; -fx-padding: 6 12;");
                 }
             }
         }
@@ -126,8 +134,8 @@ public class ChessView extends Application {
      */
     private void startGame() {
         ChessGame game = new ChessGame();
-        controller = new GameController(game, this, selectedSearchDepth);
         showGameScreen(game.getBoard());
+        controller = new GameController(game, this, selectedSearchDepth);
     }
 
     /**
