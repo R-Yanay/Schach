@@ -8,22 +8,30 @@ import javafx.application.Platform;
 /**
  * Verbinzt View und Model.
  * Speichert die ausgewählte Figur und führt nur gültige Züge aus.
- * Nach jedem Spieler-Zug (Weiß) denkt die KI nach und zieht als Schwarz.
+ * Die KI spielt gegen den Spieler – der Spieler kann Weiß oder Schwarz wählen.
  */
 public class GameController {
 
     private final ChessGame game;
     private final ChessView view;
     private final AI ai;
+    private final Color playerColor; // Farbe des menschlichen Spielers
 
     private int selectedRow = -1;
     private int selectedCol = -1;
 
-    public GameController(ChessGame game, ChessView view, int searchDepth) {
+    public GameController(ChessGame game, ChessView view, int searchDepth, Color playerColor) {
         this.game = game;
         this.view = view;
         this.ai = new AI(searchDepth);
-        updateStatus();
+        this.playerColor = playerColor;
+
+        // Wenn Spieler Schwarz wählt, zieht die KI (Weiß) zuerst
+        if (playerColor == Color.BLACK) {
+            makeAIMove();
+        } else {
+            updateStatus();
+        }
     }
 
     /**
@@ -35,8 +43,8 @@ public class GameController {
             return;
         }
 
-        // Nur Weiß (Spieler) kann klicken – Schwarz ist die KI
-        if (game.getCurrentPlayer() != Color.WHITE) {
+        // Nur der menschliche Spieler kann klicken
+        if (game.getCurrentPlayer() != playerColor) {
             return;
         }
 
@@ -76,6 +84,9 @@ public class GameController {
         selectedCol = -1;
 
         if (success) {
+            // Letzten Zug hervorheben
+            view.clearLastMoveHighlight();
+            view.highlightLastMove(selectedRow, selectedCol, row, col);
             // Brett komplett aktualisieren
             view.updateBoard(game.getBoard());
             updateStatus();
@@ -101,6 +112,9 @@ public class GameController {
             if (aiMove != null) {
                 Platform.runLater(() -> {
                     game.makeMove(aiMove.getFromRow(), aiMove.getFromCol(),
+                            aiMove.getToRow(), aiMove.getToCol());
+                    view.clearLastMoveHighlight();
+                    view.highlightLastMove(aiMove.getFromRow(), aiMove.getFromCol(),
                             aiMove.getToRow(), aiMove.getToCol());
                     view.updateBoard(game.getBoard());
                     updateStatus();
@@ -149,7 +163,12 @@ public class GameController {
             case CHECKMATE:
                 Color winner = (player == Color.WHITE) ? Color.BLACK : Color.WHITE;
                 String winnerText = (winner == Color.WHITE) ? "White" : "Black";
-                view.setStatus("Checkmate! " + winnerText + " wins.");
+                // Zeige, ob der menschliche Spieler gewonnen hat
+                if (winner == playerColor) {
+                    view.setStatus("Checkmate! You win!");
+                } else {
+                    view.setStatus("Checkmate! Computer wins.");
+                }
                 break;
             case STALEMATE:
                 view.setStatus("Stalemate! Draw.");
@@ -159,7 +178,11 @@ public class GameController {
                 break;
             case IN_PROGRESS:
             default:
-                view.setStatus("" + playerText + " to move");
+                if (player == playerColor) {
+                    view.setStatus("Your turn " + playerText);
+                } else {
+                    view.setStatus("Computer is thinking...");
+                }
                 break;
         }
     }

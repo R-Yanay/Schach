@@ -26,6 +26,12 @@ public class ChessGame {
     private int enPassantRow = -1;
     private int enPassantCol = -1;
 
+    // Letzter Zug (für Hervorhebung in der GUI)
+    private int lastMoveFromRow = -1;
+    private int lastMoveFromCol = -1;
+    private int lastMoveToRow = -1;
+    private int lastMoveToCol = -1;
+
     public ChessGame() {
         this.board = new ChessBoard();
         this.moveValidator = new MoveValidator();
@@ -111,6 +117,11 @@ public class ChessGame {
      * Nach jedem Zug: Rochade-Flags aktualisieren und Status prüfen.
      */
     private void afterMove(Piece piece, int fromRow, int fromCol, int toRow, int toCol) {
+        // Letzten Zug speichern
+        lastMoveFromRow = fromRow;
+        lastMoveFromCol = fromCol;
+        lastMoveToRow = toRow;
+        lastMoveToCol = toCol;
         // Rochade-Flags aktualisieren
         if (piece.getType() == PieceType.KING) {
             if (piece.getColor() == Color.WHITE) whiteKingMoved = true;
@@ -477,4 +488,13 @@ public class ChessGame {
     public Color getCurrentPlayer() { return currentPlayer; }
     public GameStatus getStatus() { return status; }
     public MoveValidator getMoveValidator() { return moveValidator; }
+
+    public int getLastMoveFromRow() { return lastMoveFromRow; }
+    public int getLastMoveFromCol() { return lastMoveFromCol; }
+    public int getLastMoveToRow() { return lastMoveToRow; }
+    public int getLastMoveToCol() { return lastMoveToCol; }
+
+    public boolean hasLastMove() {
+        return lastMoveFromRow != -1;
+    }
 }
