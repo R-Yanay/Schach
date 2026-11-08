@@ -1,8 +1,8 @@
 package ch.zhaw.schach.model;
 
 /**
- * Typen der Schachfiguren mit ihren Unicode-Symbolen.
- * Unterstützt verschiedene visuelle Stile: OldSchool, Chess.com, Classic.
+ * Typen der Schachfiguren mit ihren SVG-Bildern.
+ * Unterstützt verschiedene visuelle Stile: Alpha, Leipzig, Horsey.
  */
 public enum PieceType {
     PAWN("Pawn"),
@@ -23,105 +23,30 @@ public enum PieceType {
     }
 
     /**
-     * Gibt das Unicode-Symbol für die Figur zurück.
+     * Gibt den Dateinamen der SVG-Figur zurück (z.B. "wk.svg" für weißen König).
      * @param color die Farbe der Figur
-     * @param style der visuelle Stil (default: OLDSCHOOL)
      */
-    public char getSymbol(Color color, PieceStyle style) {
-        if (style == PieceStyle.CHESSCOM) {
-            return getChessComSymbol(color);
-        } else if (style == PieceStyle.CLASSIC) {
-            return getClassicSymbol(color);
-        } else {
-            return getOldSchoolSymbol(color);
+    public String getSvgFileName(Color color) {
+        String colorPrefix = color == Color.WHITE ? "w" : "b";
+        String pieceLetter;
+        switch (this) {
+            case KING: pieceLetter = "K"; break;
+            case QUEEN: pieceLetter = "Q"; break;
+            case ROOK: pieceLetter = "R"; break;
+            case BISHOP: pieceLetter = "B"; break;
+            case KNIGHT: pieceLetter = "N"; break;
+            case PAWN: pieceLetter = "P"; break;
+            default: pieceLetter = "?"; break;
         }
+        return colorPrefix + pieceLetter + ".svg";
     }
 
     /**
-     * Gibt das Unicode-Symbol für die Figur zurück (OldSchool-Standard).
+     * Gibt den Pfad zur SVG-Datei zurück (relativ zu resources/pieces/).
+     * @param color die Farbe der Figur
+     * @param style der visuelle Stil
      */
-    public char getSymbol(Color color) {
-        return getSymbol(color, PieceStyle.OLDSCHOOL);
-    }
-
-    /**
-     * OldSchool – Standard Unicode-Symbole (hollow/filled).
-     */
-    private char getOldSchoolSymbol(Color color) {
-        if (color == Color.WHITE) {
-            switch (this) {
-                case KING: return '♔';
-                case QUEEN: return '♕';
-                case ROOK: return '♖';
-                case BISHOP: return '♗';
-                case KNIGHT: return '♘';
-                case PAWN: return '♙';
-                default: return '?';
-            }
-        } else {
-            switch (this) {
-                case KING: return '♚';
-                case QUEEN: return '♛';
-                case ROOK: return '♜';
-                case BISHOP: return '♝';
-                case KNIGHT: return '♞';
-                case PAWN: return '♟';
-                default: return '?';
-            }
-        }
-    }
-
-    /**
-     * Chess.com – ähnliche Symbole wie auf Chess.com (dicker, ausgefüllt).
-     */
-    private char getChessComSymbol(Color color) {
-        if (color == Color.WHITE) {
-            switch (this) {
-                case KING: return '♔';
-                case QUEEN: return '♕';
-                case ROOK: return '♖';
-                case BISHOP: return '♗';
-                case KNIGHT: return '♘';
-                case PAWN: return '♙';
-                default: return '?';
-            }
-        } else {
-            switch (this) {
-                case KING: return '♚';
-                case QUEEN: return '♛';
-                case ROOK: return '♜';
-                case BISHOP: return '♝';
-                case KNIGHT: return '♞';
-                case PAWN: return '♟';
-                default: return '?';
-            }
-        }
-    }
-
-    /**
-     * Classic – traditionelle Symbole mit Buchstaben-ähnlicher Darstellung.
-     */
-    private char getClassicSymbol(Color color) {
-        if (color == Color.WHITE) {
-            switch (this) {
-                case KING: return '♔';
-                case QUEEN: return '♕';
-                case ROOK: return '♖';
-                case BISHOP: return '♗';
-                case KNIGHT: return '♘';
-                case PAWN: return '♙';
-                default: return '?';
-            }
-        } else {
-            switch (this) {
-                case KING: return '♚';
-                case QUEEN: return '♛';
-                case ROOK: return '♜';
-                case BISHOP: return '♝';
-                case KNIGHT: return '♞';
-                case PAWN: return '♟';
-                default: return '?';
-            }
-        }
+    public String getSvgPath(Color color, PieceStyle style) {
+        return "pieces/" + style.getFolderName() + "/" + getSvgFileName(color);
     }
 }

@@ -104,23 +104,17 @@ public class AI {
 
     /**
      * Gibt alle gültigen Züge für eine Farbe zurück.
+     * Nutzt die effiziente getValidMoves-Methode pro Figur statt alle 64x64 Kombinationen zu prüfen.
      */
     private List<Move> getAllMoves(ChessGame game, Color color) {
         List<Move> moves = new ArrayList<>();
         ChessBoard board = game.getBoard();
-        MoveValidator validator = game.getMoveValidator();
 
         for (int fromRow = 0; fromRow < 8; fromRow++) {
             for (int fromCol = 0; fromCol < 8; fromCol++) {
                 Piece piece = board.getPiece(fromRow, fromCol);
                 if (piece != null && piece.getColor() == color) {
-                    for (int toRow = 0; toRow < 8; toRow++) {
-                        for (int toCol = 0; toCol < 8; toCol++) {
-                            if (validator.isValidMove(board, fromRow, fromCol, toRow, toCol)) {
-                                moves.add(new Move(fromRow, fromCol, toRow, toCol));
-                            }
-                        }
-                    }
+                    moves.addAll(game.getValidMoves(fromRow, fromCol));
                 }
             }
         }

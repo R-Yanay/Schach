@@ -2,14 +2,14 @@ package ch.zhaw.schach.model;
 
 /**
  * Verschiedene visuelle Stile für Schachfiguren.
- * OldSchool = Unicode-Symbole (Standard)
- * ChessCom = Chess.com-ähnliche Symbole
- * Classic = Klassische Symbole
+ * Alpha = Altmodisches klassisches Design
+ * Leipzig = Modernes sauberes Design
+ * Horsey = Kreatives verspieltes Design
  */
 public enum PieceStyle {
-    OLDSCHOOL("OldSchool"),
-    CHESSCOM("Chess.com"),
-    CLASSIC("Classic");
+    ALPHA("Alpha"),
+    LEIPZIG("Leipzig"),
+    HORSEY("Horsey");
 
     private final String displayName;
 
@@ -19,5 +19,12 @@ public enum PieceStyle {
 
     public String getDisplayName() {
         return displayName;
+    }
+
+    /**
+     * Gibt den Ordnernamen für die SVG-Dateien dieses Stils zurück.
+     */
+    public String getFolderName() {
+        return this.name().toLowerCase();
     }
 }

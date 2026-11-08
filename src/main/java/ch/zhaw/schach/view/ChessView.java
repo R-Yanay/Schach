@@ -13,8 +13,12 @@ import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.Priority;
@@ -24,6 +28,13 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.net.URL;
+import com.github.weisj.jsvg.SVGDocument;
+import com.github.weisj.jsvg.parser.SVGLoader;
+import com.github.weisj.jsvg.view.ViewBox;
+import javafx.embed.swing.SwingFXUtils;
 
 /**
  * JavaFX-Hauptfenster mit Startbildschirm und Schachbrett.
@@ -33,14 +44,15 @@ public class ChessView extends Application {
     private GridPane boardGrid;
     private Label statusLabel;
     private StackPane[][] cellStacks; // 8x8 StackPane für Felder mit Punkten
-    private Label[][] cellLabels; // 8x8 Label-Felder
+    private Pane[][] cellPanes; // 8x8 Pane-Felder (Hintergrund)
+    private ImageView[][] cellImages; // 8x8 ImageView für Figuren
     private Circle[][] moveDots; // 8x8 Punkte für gültige Züge
     private GameController controller;
 
     private Stage mainStage;
     private int selectedSearchDepth = 3; // default: Medium
     private Color selectedPlayerColor = Color.WHITE; // default: White
-    private PieceStyle selectedPieceStyle = PieceStyle.OLDSCHOOL; // default: OldSchool
+    private PieceStyle selectedPieceStyle = PieceStyle.ALPHA; // default: Alpha
 
     // Board flip: true when playing as Black (board rotated 180°)
     private boolean flipped = false;
@@ -48,7 +60,7 @@ public class ChessView extends Application {
     // References to buttons for highlighting
     private Button easyBtn, mediumBtn, hardBtn;
     private Button whiteBtn, blackBtn;
-    private Button oldSchoolBtn, chessComBtn, classicBtn;
+    private Button alphaBtn, leipzigBtn, horseyBtn;
 
     @Override
     public void start(Stage primaryStage) {
@@ -79,7 +91,7 @@ public class ChessView extends Application {
         difficultyBox.setAlignment(Pos.CENTER);
         easyBtn = createDifficultyButton("Easy", 1);
         mediumBtn = createDifficultyButton("Medium", 3);
-        hardBtn = createDifficultyButton("Hard", 5);
+        hardBtn = createDifficultyButton("Hard", 4);
         difficultyBox.getChildren().addAll(easyBtn, mediumBtn, hardBtn);
 
         // --- Color section ---
@@ -100,10 +112,10 @@ public class ChessView extends Application {
 
         HBox styleBox = new HBox(10);
         styleBox.setAlignment(Pos.CENTER);
-        oldSchoolBtn = createStyleButton("OldSchool", PieceStyle.OLDSCHOOL);
-        chessComBtn = createStyleButton("Chess.com", PieceStyle.CHESSCOM);
-        classicBtn = createStyleButton("Classic", PieceStyle.CLASSIC);
-        styleBox.getChildren().addAll(oldSchoolBtn, chessComBtn, classicBtn);
+        alphaBtn = createStyleButton("Alpha", PieceStyle.ALPHA);
+        leipzigBtn = createStyleButton("Leipzig", PieceStyle.LEIPZIG);
+        horseyBtn = createStyleButton("Horsey", PieceStyle.HORSEY);
+        styleBox.getChildren().addAll(alphaBtn, leipzigBtn, horseyBtn);
 
         // Start-Button
         Button startBtn = new Button("New Game");
@@ -120,7 +132,7 @@ public class ChessView extends Application {
         // Set default highlights
         updateDifficultyButtons(mediumBtn);
         updateColorButtons(whiteBtn);
-        updateStyleButtons(oldSchoolBtn);
+        updateStyleButtons(alphaBtn);
 
         Scene scene = new Scene(root, 400, 520);
         mainStage.setTitle("Chess");
@@ -198,12 +210,60 @@ public class ChessView extends Application {
     }
 
     /**
-     * Erstellt einen Style-Button (OldSchool/Chess.com/Classic) mit Highlight-Effekt.
+     * Lädt eine kleine Vorschau-Image einer weißen König-Figur für den Style-Button.
+     */
+    private Image loadPreviewImage(PieceStyle style) {
+        try {
+            String path = "pieces/" + style.getFolderName() + "/wk.svg";
+            URL resource = getClass().getClassLoader().getResource(path);
+            if (resource != null) {
+                SVGLoader loader = new SVGLoader();
+                SVGDocument document = loader.load(resource);
+                int previewSize = 30;
+                BufferedImage bufferedImage = new BufferedImage(previewSize, previewSize, BufferedImage.TYPE_INT_ARGB);
+                Graphics2D g2d = bufferedImage.createGraphics();
+                g2d.setRenderingHint(
+                    java.awt.RenderingHints.KEY_ANTIALIASING,
+                    java.awt.RenderingHints.VALUE_ANTIALIAS_ON
+                );
+                g2d.setRenderingHint(
+                    java.awt.RenderingHints.KEY_STROKE_CONTROL,
+                    java.awt.RenderingHints.VALUE_STROKE_PURE
+                );
+                document.render(null, g2d, new ViewBox(0, 0, previewSize, previewSize));
+                g2d.dispose();
+                return SwingFXUtils.toFXImage(bufferedImage, null);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Erstellt einen Style-Button mit Vorschaubild und Highlight-Effekt.
      */
     private Button createStyleButton(String text, PieceStyle style) {
-        Button btn = new Button(text);
-        btn.setFont(Font.font(12));
-        btn.setPrefWidth(90);
+        // Vorschau-Image der weißen König-Figur laden
+        Image preview = loadPreviewImage(style);
+        ImageView previewIcon = new ImageView(preview);
+        previewIcon.setFitHeight(24);
+        previewIcon.setFitWidth(24);
+        previewIcon.setPreserveRatio(true);
+
+        // Button-Content: Icon + Text in einem HBox
+        HBox content = new HBox(6);
+        content.setAlignment(Pos.CENTER);
+        content.getChildren().add(previewIcon);
+        Label textLabel = new Label(text);
+        textLabel.setFont(Font.font(12));
+        textLabel.setTextFill(javafx.scene.paint.Color.web("#ffffff"));
+        content.getChildren().add(textLabel);
+
+        Button btn = new Button();
+        btn.setGraphic(content);
+        btn.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        btn.setPrefWidth(100);
         btn.setStyle("-fx-background-color: #444444; -fx-text-fill: white; "
                 + "-fx-background-radius: 5; -fx-padding: 6 12;");
 
@@ -219,7 +279,7 @@ public class ChessView extends Application {
      * Aktualisiert die Farbe der Style-Buttons.
      */
     private void updateStyleButtons(Button selected) {
-        Button[] buttons = {oldSchoolBtn, chessComBtn, classicBtn};
+        Button[] buttons = {alphaBtn, leipzigBtn, horseyBtn};
         for (Button btn : buttons) {
             if (btn == selected) {
                 btn.setStyle("-fx-background-color: #9C27B0; -fx-text-fill: white; "
@@ -262,7 +322,8 @@ public class ChessView extends Application {
         boardGrid.setVgap(0);
         boardGrid.setAlignment(Pos.CENTER);
 
-        cellLabels = new Label[8][8];
+        cellPanes = new Pane[8][8];
+        cellImages = new ImageView[8][8];
         cellStacks = new StackPane[8][8];
         moveDots = new Circle[8][8];
 
@@ -272,30 +333,28 @@ public class ChessView extends Application {
                 final int boardRow = flipped ? (7 - visRow) : visRow;
                 final int boardCol = flipped ? (7 - visCol) : visCol;
 
-                Label cell = new Label();
-                cell.setPrefSize(60, 60);
-                cell.setAlignment(Pos.CENTER);
-                cell.setFont(Font.font(40));
+                // Hintergrund-Feld
+                Pane cellPane = new Pane();
+                cellPane.setPrefSize(60, 60);
 
                 // Feldfarbe: hell/dunkel abwechselnd (basierend auf Brett-Koordinaten)
                 boolean isLight = (boardRow + boardCol) % 2 == 0;
-                cell.setStyle(String.format(
+                cellPane.setStyle(String.format(
                         "-fx-background-color: %s; -fx-border-color: #333; -fx-border-width: 1;",
                         isLight ? "#F0D9B5" : "#B58863"
                 ));
 
+                // ImageView für die Figur (initial leer)
+                ImageView cellImage = new ImageView();
+                cellImage.setPreserveRatio(true);
+                cellImage.setFitHeight(50);
+                cellImage.setFitWidth(50);
+                cellImage.setVisible(false);
+
                 // Figur anzeigen mit gewähltem Style
                 Piece piece = board.getPiece(boardRow, boardCol);
                 if (piece != null) {
-                    cell.setText(String.valueOf(piece.getType().getSymbol(piece.getColor(), selectedPieceStyle)));
-                    // Schwarze Figuren dunkler färben für bessere Sichtbarkeit
-                    if (piece.getColor() == ch.zhaw.schach.model.Color.BLACK) {
-                        cell.setTextFill(javafx.scene.paint.Color.web("#1a1a1a"));
-                    } else {
-                        cell.setTextFill(javafx.scene.paint.Color.web("#ffffff"));
-                        // Weiße Figuren mit Schatten-Effekt
-                        cell.setStyle(cell.getStyle() + " -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 2, 0, 0, 1);");
-                    }
+                    setPieceImage(cellImage, piece);
                 }
 
                 // Punkt für gültige Züge (unsichtbar)
@@ -304,8 +363,9 @@ public class ChessView extends Application {
                 dot.setManaged(false);
 
                 // StackPane für Klick-Handler und Punkt
-                StackPane stack = new StackPane(cell, dot);
+                StackPane stack = new StackPane(cellPane, cellImage, dot);
                 stack.setPrefSize(60, 60);
+                stack.setAlignment(Pos.CENTER);
 
                 // Klick-Handler: visuelle Koordinaten zurück zu Brett-Koordinaten
                 stack.setOnMouseClicked(e -> {
@@ -315,7 +375,8 @@ public class ChessView extends Application {
                 });
 
                 // Arrays werden mit Brett-Koordinaten indiziert
-                cellLabels[boardRow][boardCol] = cell;
+                cellPanes[boardRow][boardCol] = cellPane;
+                cellImages[boardRow][boardCol] = cellImage;
                 cellStacks[boardRow][boardCol] = stack;
                 moveDots[boardRow][boardCol] = dot;
 
@@ -342,20 +403,54 @@ public class ChessView extends Application {
     }
 
     /**
+     * Setzt das SVG-Bild einer Figur in einen ImageView.
+     */
+    private void setPieceImage(ImageView imageView, Piece piece) {
+        try {
+            String path = piece.getType().getSvgPath(piece.getColor(), selectedPieceStyle);
+            URL resource = getClass().getClassLoader().getResource(path);
+            if (resource != null) {
+                // Load SVG using JSVG
+                SVGLoader loader = new SVGLoader();
+                SVGDocument document = loader.load(resource);
+                
+                int renderSize = 50;
+                
+                // Render SVG to BufferedImage using AWT with proper scaling
+                BufferedImage bufferedImage = new BufferedImage(renderSize, renderSize, BufferedImage.TYPE_INT_ARGB);
+                Graphics2D g2d = bufferedImage.createGraphics();
+                g2d.setRenderingHint(
+                    java.awt.RenderingHints.KEY_ANTIALIASING,
+                    java.awt.RenderingHints.VALUE_ANTIALIAS_ON
+                );
+                g2d.setRenderingHint(
+                    java.awt.RenderingHints.KEY_STROKE_CONTROL,
+                    java.awt.RenderingHints.VALUE_STROKE_PURE
+                );
+                document.render(null, g2d, new ViewBox(0, 0, renderSize, renderSize));
+                g2d.dispose();
+                
+                // Convert BufferedImage to JavaFX Image
+                Image image = SwingFXUtils.toFXImage(bufferedImage, null);
+                imageView.setImage(image);
+                imageView.setVisible(true);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            imageView.setVisible(false);
+        }
+    }
+
+    /**
      * Aktualisiert die Anzeige eines einzelnen Felds mit dem gewählten Style.
      */
     public void updateCell(int row, int col, Piece piece) {
-        Label cell = cellLabels[row][col];
+        ImageView cellImage = cellImages[row][col];
         if (piece != null) {
-            cell.setText(String.valueOf(piece.getType().getSymbol(piece.getColor(), selectedPieceStyle)));
-            if (piece.getColor() == ch.zhaw.schach.model.Color.BLACK) {
-                cell.setTextFill(javafx.scene.paint.Color.web("#1a1a1a"));
-            } else {
-                cell.setTextFill(javafx.scene.paint.Color.web("#ffffff"));
-            }
+            setPieceImage(cellImage, piece);
         } else {
-            cell.setText("");
-            cell.setTextFill(javafx.scene.paint.Color.BLACK);
+            cellImage.setImage(null);
+            cellImage.setVisible(false);
         }
     }
 
@@ -378,18 +473,18 @@ public class ChessView extends Application {
     }
 
     /**
-     * Hebt ein Feld hervor (gelber Rahmen) oder entfernt die Hervorhebung.
+     * Hebt ein Feld hervor (gelber Hintergrund) oder entfernt die Hervorhebung.
      */
     public void highlightCell(int row, int col, boolean highlight) {
-        Label cell = cellLabels[row][col];
+        Pane cellPane = cellPanes[row][col];
         boolean isLight = (row + col) % 2 == 0;
         String baseColor = isLight ? "#F0D9B5" : "#B58863";
         if (highlight) {
-            cell.setStyle(String.format(
-                    "-fx-background-color: #FFD700; -fx-border-color: #333; -fx-border-width: 1; -fx-background-radius: 2;"
+            cellPane.setStyle(String.format(
+                    "-fx-background-color: #FFD700; -fx-border-color: #333; -fx-border-width: 1;"
             ));
         } else {
-            cell.setStyle(String.format(
+            cellPane.setStyle(String.format(
                     "-fx-background-color: %s; -fx-border-color: #333; -fx-border-width: 1;",
                     baseColor
             ));
@@ -405,8 +500,8 @@ public class ChessView extends Application {
     }
 
     private void highlightLastMoveCell(int row, int col) {
-        Label cell = cellLabels[row][col];
-        cell.setStyle(String.format(
+        Pane cellPane = cellPanes[row][col];
+        cellPane.setStyle(String.format(
                 "-fx-background-color: #A0D468; -fx-border-color: #333; -fx-border-width: 1;"
         ));
     }
@@ -423,10 +518,10 @@ public class ChessView extends Application {
     }
 
     private void clearLastMoveCell(int row, int col) {
-        Label cell = cellLabels[row][col];
+        Pane cellPane = cellPanes[row][col];
         boolean isLight = (row + col) % 2 == 0;
         String baseColor = isLight ? "#F0D9B5" : "#B58863";
-        cell.setStyle(String.format(
+        cellPane.setStyle(String.format(
                 "-fx-background-color: %s; -fx-border-color: #333; -fx-border-width: 1;",
                 baseColor
         ));
@@ -440,10 +535,10 @@ public class ChessView extends Application {
     }
 
     /**
-     * Gibt die Zell-Labels zurück (für Klick-Handler).
+     * Gibt die Zell-Panes zurück (für Hervorhebung).
      */
-    public Label[][] getCellLabels() {
-        return cellLabels;
+    public Pane[][] getCellPanes() {
+        return cellPanes;
     }
 
     /**

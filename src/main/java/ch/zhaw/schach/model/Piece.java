@@ -22,6 +22,6 @@ public class Piece {
 
     @Override
     public String toString() {
-        return String.valueOf(type.getSymbol(color));
+        return color + " " + type.getName();
     }
 }

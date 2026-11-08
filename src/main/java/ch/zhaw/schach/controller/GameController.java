@@ -77,8 +77,10 @@ public class GameController {
         }
 
         // Zug ausführen – nur wenn gültig
-        boolean success = game.makeMove(selectedRow, selectedCol, row, col);
-        view.highlightCell(selectedRow, selectedCol, false);
+        int fromRow = selectedRow;
+        int fromCol = selectedCol;
+        boolean success = game.makeMove(fromRow, fromCol, row, col);
+        view.highlightCell(fromRow, fromCol, false);
         clearValidMoves();
         selectedRow = -1;
         selectedCol = -1;
@@ -86,7 +88,7 @@ public class GameController {
         if (success) {
             // Letzten Zug hervorheben
             view.clearLastMoveHighlight();
-            view.highlightLastMove(selectedRow, selectedCol, row, col);
+            view.highlightLastMove(fromRow, fromCol, row, col);
             // Brett komplett aktualisieren
             view.updateBoard(game.getBoard());
             updateStatus();
