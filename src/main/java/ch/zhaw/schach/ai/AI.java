@@ -1,0 +1,128 @@
+package ch.zhaw.schach.ai;
+
+import ch.zhaw.schach.model.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+
+/**
+ * Minimax-KI für Schach.
+ * Denkt 3 Züge voraus und wählt den besten Zug.
+ */
+public class AI {
+
+    private static final int SEARCH_DEPTH = 3;
+    private final Evaluator evaluator;
+    private final Random random;
+
+    public AI() {
+        this.evaluator = new Evaluator();
+        this.random = new Random();
+    }
+
+    /**
+     * Berechnet den besten Zug für die angegebene Farbe.
+     */
+    public Move getBestMove(ChessGame game) {
+        List<Move> allMoves = getAllMoves(game, game.getCurrentPlayer());
+        if (allMoves.isEmpty()) return null;
+
+        // Mische Züge für Abwechslung bei gleichen Bewertungen
+        Collections.shuffle(allMoves, random);
+
+        Color aiColor = game.getCurrentPlayer();
+        boolean isMaximizing = (aiColor == Color.WHITE);
+
+        Move bestMove = null;
+        int bestScore = isMaximizing ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+
+        for (Move move : allMoves) {
+            ChessGame simulatedGame = game.copy();
+            if (simulatedGame.makeMove(move.getFromRow(), move.getFromCol(),
+                    move.getToRow(), move.getToCol())) {
+                int score = minimax(simulatedGame, SEARCH_DEPTH - 1,
+                        Integer.MIN_VALUE, Integer.MAX_VALUE, !isMaximizing);
+
+                if (isMaximizing) {
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMove = move;
+                    }
+                } else {
+                    if (score < bestScore) {
+                        bestScore = score;
+                        bestMove = move;
+                    }
+                }
+            }
+        }
+
+        return bestMove != null ? bestMove : allMoves.get(0);
+    }
+
+    /**
+     * Minimax-Algorithmus mit Alpha-Beta-Pruning.
+     */
+    private int minimax(ChessGame game, int depth, int alpha, int beta, boolean isMaximizing) {
+        if (depth == 0 || game.getStatus() == GameStatus.CHECKMATE || game.getStatus() == GameStatus.STALEMATE) {
+            return evaluator.evaluate(game.getBoard());
+        }
+
+        List<Move> moves = getAllMoves(game, game.getCurrentPlayer());
+
+        if (isMaximizing) {
+            int maxEval = Integer.MIN_VALUE;
+            for (Move move : moves) {
+                ChessGame simulatedGame = game.copy();
+                if (simulatedGame.makeMove(move.getFromRow(), move.getFromCol(),
+                        move.getToRow(), move.getToCol())) {
+                    int eval = minimax(simulatedGame, depth - 1, alpha, beta, false);
+                    maxEval = Math.max(maxEval, eval);
+                    alpha = Math.max(alpha, eval);
+                    if (beta <= alpha) break;
+                }
+            }
+            return maxEval;
+        } else {
+            int minEval = Integer.MAX_VALUE;
+            for (Move move : moves) {
+                ChessGame simulatedGame = game.copy();
+                if (simulatedGame.makeMove(move.getFromRow(), move.getFromCol(),
+                        move.getToRow(), move.getToCol())) {
+                    int eval = minimax(simulatedGame, depth - 1, alpha, beta, true);
+                    minEval = Math.min(minEval, eval);
+                    beta = Math.min(beta, eval);
+                    if (beta <= alpha) break;
+                }
+            }
+            return minEval;
+        }
+    }
+
+    /**
+     * Gibt alle gültigen Züge für eine Farbe zurück.
+     */
+    private List<Move> getAllMoves(ChessGame game, Color color) {
+        List<Move> moves = new ArrayList<>();
+        ChessBoard board = game.getBoard();
+        MoveValidator validator = game.getMoveValidator();
+
+        for (int fromRow = 0; fromRow < 8; fromRow++) {
+            for (int fromCol = 0; fromCol < 8; fromCol++) {
+                Piece piece = board.getPiece(fromRow, fromCol);
+                if (piece != null && piece.getColor() == color) {
+                    for (int toRow = 0; toRow < 8; toRow++) {
+                        for (int toCol = 0; toCol < 8; toCol++) {
+                            if (validator.isValidMove(board, fromRow, fromCol, toRow, toCol)) {
+                                moves.add(new Move(fromRow, fromCol, toRow, toCol));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return moves;
+    }
+}
