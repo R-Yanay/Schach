@@ -9,15 +9,16 @@ import java.util.Random;
 
 /**
  * Minimax-KI für Schach.
- * Denkt 3 Züge voraus und wählt den besten Zug.
+ * Die Suchtiefe ist konfigurierbar: 1 (Einfach), 3 (Mittel), 5 (Schwer).
  */
 public class AI {
 
-    private static final int SEARCH_DEPTH = 3;
+    private final int searchDepth;
     private final Evaluator evaluator;
     private final Random random;
 
-    public AI() {
+    public AI(int searchDepth) {
+        this.searchDepth = searchDepth;
         this.evaluator = new Evaluator();
         this.random = new Random();
     }
@@ -42,7 +43,7 @@ public class AI {
             ChessGame simulatedGame = game.copy();
             if (simulatedGame.makeMove(move.getFromRow(), move.getFromCol(),
                     move.getToRow(), move.getToCol())) {
-                int score = minimax(simulatedGame, SEARCH_DEPTH - 1,
+                int score = minimax(simulatedGame, searchDepth - 1,
                         Integer.MIN_VALUE, Integer.MAX_VALUE, !isMaximizing);
 
                 if (isMaximizing) {

@@ -16,10 +16,12 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 /**
- * JavaFX-Hauptfenster mit Schachbrett und Statusanzeige.
+ * JavaFX-Hauptfenster mit Startbildschirm und Schachbrett.
  */
 public class ChessView extends Application {
 
@@ -30,9 +32,108 @@ public class ChessView extends Application {
     private Circle[][] moveDots; // 8x8 Punkte für gültige Züge
     private GameController controller;
 
+    private Stage mainStage;
+    private int selectedSearchDepth = 3; // default: Medium
+
     @Override
     public void start(Stage primaryStage) {
-        // Hauptlayout
+        mainStage = primaryStage;
+        showStartScreen();
+    }
+
+    /**
+     * Zeigt den Startbildschirm mit Schwierigkeitsauswahl.
+     */
+    private void showStartScreen() {
+        VBox root = new VBox(20);
+        root.setPadding(new Insets(30));
+        root.setAlignment(Pos.CENTER);
+        root.setStyle("-fx-background-color: #2c2c2c;");
+
+        // Titel
+        Text title = new Text("Chess");
+        title.setFont(Font.font("Arial", FontWeight.BOLD, 36));
+        title.setFill(Color.web("#ffffff"));
+
+        // Untertitel
+        Label subtitle = new Label("Select difficulty:");
+        subtitle.setFont(Font.font(14));
+        subtitle.setTextFill(Color.web("#cccccc"));
+
+        // Schwierigkeits-Buttons
+        Button easyBtn = createDifficultyButton("Easy", 1);
+        Button mediumBtn = createDifficultyButton("Medium", 3);
+        Button hardBtn = createDifficultyButton("Hard", 5);
+
+        // Start-Button
+        Button startBtn = new Button("New Game");
+        startBtn.setFont(Font.font(16));
+        startBtn.setPrefWidth(180);
+        startBtn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; "
+                + "-fx-background-radius: 5; -fx-padding: 10 20;");
+        startBtn.setOnAction(e -> startGame());
+
+        root.getChildren().addAll(title, subtitle, easyBtn, mediumBtn, hardBtn, startBtn);
+
+        Scene scene = new Scene(root, 400, 450);
+        mainStage.setTitle("Chess");
+        mainStage.setScene(scene);
+        mainStage.setResizable(false);
+        mainStage.show();
+    }
+
+    /**
+     * Erstellt einen Schwierigkeits-Button mit Highlight-Effekt.
+     */
+    private Button createDifficultyButton(String text, int depth) {
+        Button btn = new Button(text);
+        btn.setFont(Font.font(16));
+        btn.setPrefWidth(180);
+        btn.setStyle("-fx-background-color: #444444; -fx-text-fill: white; "
+                + "-fx-background-radius: 5; -fx-padding: 10 20;");
+
+        btn.setOnAction(e -> {
+            selectedSearchDepth = depth;
+            // Highlight den ausgewählten Button
+            updateDifficultyButtons(btn);
+        });
+
+        return btn;
+    }
+
+    /**
+     * Aktualisiert die Farbe der Schwierigkeits-Buttons.
+     */
+    private void updateDifficultyButtons(Button selected) {
+        // Finde alle Buttons im Parent und aktualisiere die Styles
+        VBox parent = (VBox) selected.getParent();
+        for (javafx.scene.Node child : parent.getChildren()) {
+            if (child instanceof Button) {
+                Button btn = (Button) child;
+                if (btn == selected) {
+                    btn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; "
+                            + "-fx-background-radius: 5; -fx-padding: 10 20;");
+                } else if (!btn.getText().equals("New Game")) {
+                    btn.setStyle("-fx-background-color: #444444; -fx-text-fill: white; "
+                            + "-fx-background-radius: 5; -fx-padding: 10 20;");
+                }
+            }
+        }
+    }
+
+    /**
+     * Startet das Spiel mit der gewählten Schwierigkeit.
+     */
+    private void startGame() {
+        ChessGame game = new ChessGame();
+        controller = new GameController(game, this, selectedSearchDepth);
+        showGameScreen(game.getBoard());
+    }
+
+    /**
+     * Zeigt das Spielfenster mit Schachbrett.
+     */
+    private void showGameScreen(ChessBoard board) {
         VBox root = new VBox(10);
         root.setPadding(new Insets(10));
         root.setAlignment(Pos.CENTER);
@@ -51,8 +152,6 @@ public class ChessView extends Application {
         cellLabels = new Label[8][8];
         cellStacks = new StackPane[8][8];
         moveDots = new Circle[8][8];
-        ChessGame game = new ChessGame();
-        ChessBoard board = game.getBoard();
 
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
@@ -117,15 +216,12 @@ public class ChessView extends Application {
         restartButton.setOnAction(e -> restartGame());
         root.getChildren().add(restartButton);
 
-        // Controller erstellen
-        controller = new GameController(game, this);
-
         // Szene
         Scene scene = new Scene(root, 520, 580);
-        primaryStage.setTitle("Chess");
-        primaryStage.setScene(scene);
-        primaryStage.setResizable(false);
-        primaryStage.show();
+        mainStage.setTitle("Chess");
+        mainStage.setScene(scene);
+        mainStage.setResizable(false);
+        mainStage.show();
     }
 
     /**
@@ -229,21 +325,10 @@ public class ChessView extends Application {
     }
 
     /**
-     * Startet ein neues Spiel.
+     * Geht zurück zum Startbildschirm.
      */
     public void restartGame() {
-        ChessGame newGame = new ChessGame();
-        // Controller neu erstellen
-        controller = new GameController(newGame, this);
-        // Brett zurücksetzen
-        updateBoard(newGame.getBoard());
-        // Alle Hervorhebungen entfernen
-        for (int r = 0; r < 8; r++) {
-            for (int c = 0; c < 8; c++) {
-                highlightCell(r, c, false);
-                clearDot(r, c);
-            }
-        }
+        showStartScreen();
     }
 
     public static void main(String[] args) {

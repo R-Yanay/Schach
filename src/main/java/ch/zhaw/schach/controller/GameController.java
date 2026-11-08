@@ -19,10 +19,10 @@ public class GameController {
     private int selectedRow = -1;
     private int selectedCol = -1;
 
-    public GameController(ChessGame game, ChessView view) {
+    public GameController(ChessGame game, ChessView view, int searchDepth) {
         this.game = game;
         this.view = view;
-        this.ai = new AI();
+        this.ai = new AI(searchDepth);
         updateStatus();
     }
 

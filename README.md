@@ -4,13 +4,14 @@ Ein Schachspiel mit grafischer Oberfläche, das du gegen einen Computer-Gegner (
 
 ## Features
 
+- **Startbildschirm** mit Schwierigkeitsauswahl (Easy, Medium, Hard)
 - **Grafisches Schachbrett** mit JavaFX (8×8 Felder, hell/dunkel)
 - **Alle 6 Figuren-Typen** mit korrekten Bewegungsregeln
 - **Klick-Steuerung**: Figur anklicken → Ziel-Feld anklicken
 - **Alle Schach-Regeln**: Rochade, En-Passant, Figurenumwandlung, Schach/Schachmatt/Patt
-- **Computer-Gegner** mit Minimax-Algorithmus (denkt 3 Züge voraus)
+- **Computer-Gegner** mit konfigurierbarem Minimax-Algorithmus (Tiefe 1–5)
 - **Visuelle Hilfe**: Grüne Punkte zeigen gültige Züge, gelbe Markierung für ausgewählte Figur
-- **Neustart-Button** für eine neue Partie
+- **New Game-Button** geht zurück zum Startbildschirm
 
 ## Voraussetzungen
 
@@ -34,10 +35,12 @@ mvn compile javafx:run
 
 ## Bedienung
 
-1. **Figur auswählen**: Klicke auf eine weiße Figur (gelbe Markierung)
-2. **Zug ausführen**: Klicke auf ein grünes Feld (gültiger Zug)
-3. **Computer zieht**: Nach deinem Zug denkt die KI nach und zieht automatisch
-4. **New Game**: Click "New Game"
+1. **Schwierigkeit wählen**: Auf dem Startbildschirm Easy, Medium oder Hard auswählen (Button wird grün hervorgehoben)
+2. **Spiel starten**: Auf "New Game" klicken
+3. **Figur auswählen**: Klicke auf eine weiße Figur (gelbe Markierung)
+4. **Zug ausführen**: Klicke auf ein grünes Feld (gültiger Zug)
+5. **Computer zieht**: Nach deinem Zug denkt die KI nach und zieht automatisch
+6. **Neues Spiel**: Auf "New Game" klicken, um zurück zum Startbildschirm zu gehen
 
 ## Architektur
 
