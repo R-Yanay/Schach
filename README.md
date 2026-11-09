@@ -22,6 +22,7 @@ Ein Schachspiel mit grafischer Oberfläche, das du gegen einen Computer-Gegner (
 - **Visuelle Hilfe**: Grüne Punkte für gültige Züge, rote Ringe für Schläge, grüne Markierung für letzten Zug
 - **Menüleiste** im Spielfenster: Game → Save (Slot 1/2/3), Load (Slot 1/2/3), New Game
 - **Speichern/Laden** des Spielzustands als JSON (3 nummerierte Slots)
+- **Fehlerbehandlung**: Freundliche Meldungen bei fehlenden oder beschädigten Spielständen und KI-Timeout (30 Sekunden)
 
 ## Voraussetzungen
 
@@ -73,11 +74,13 @@ Schach/src/main/java/ch/zhaw/schach/
 │   ├── GameStatus.java            # Enum: IN_PROGRESS, CHECK, CHECKMATE, STALEMATE,
 │   │                              #   INSUFFICIENT_MATERIAL, DRAW_THREEFOLD_REPETITION,
 │   │                              #   DRAW_FIFTY_MOVES
+│   ├── LoadException.java         # Exception: Spielstand kann nicht geladen werden
 │   ├── Move.java                  # Zug (start, end, promotion)
 │   ├── MoveValidator.java         # Gültige Züge berechnen
 │   ├── Piece.java                 # Figur (Typ, Farbe)
 │   ├── PieceStyle.java            # Enum: ALPHA, LEIPZIG, HORSEY (Figuren-Styles)
-│   └── PieceType.java             # Enum: PAWN, ROOK, KNIGHT, BISHOP, QUEEN, KING
+│   ├── PieceType.java             # Enum: PAWN, ROOK, KNIGHT, BISHOP, QUEEN, KING
+│   └── SaveException.java         # Exception: Spielstand kann nicht gespeichert werden
 ├── ai/
 │   ├── AI.java                    # Minimax-Algorithmus mit Alpha-Beta-Pruning
 │   └── Evaluator.java             # Bewertet Stellungen (Material + Position)
@@ -101,6 +104,7 @@ Bei diesem Projekt habe ich JavaFX kennengelernt und verstanden, wie man eine gr
 - **Minimax-Algorithmus**: Computer-KI mit konfigurierbarer Suchtiefe
 - **JSON-Speicherung**: Spielzustand serialisieren und laden mit Gson-Bibliothek
 - **JUnit-Tests**: Unit-Tests für Spiellogik, Remis-Regeln und Speichern/Laden
+- **Fehlerbehandlung**: Benutzerdefinierte Exceptions (SaveException, LoadException, AIException) mit try-catch und freundlichen Fehlermeldungen
 - **Git**: Versionskontrolle für den Entwicklungsprozess
 
 ## Tests
