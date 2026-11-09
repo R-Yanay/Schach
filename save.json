@@ -1,0 +1,215 @@
+{
+  "board": [
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      {
+        "type": "BISHOP",
+        "color": "BLACK"
+      },
+      null,
+      {
+        "type": "ROOK",
+        "color": "BLACK"
+      }
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      {
+        "type": "KING",
+        "color": "BLACK"
+      },
+      null,
+      {
+        "type": "PAWN",
+        "color": "BLACK"
+      },
+      null
+    ],
+    [
+      {
+        "type": "PAWN",
+        "color": "BLACK"
+      },
+      {
+        "type": "PAWN",
+        "color": "BLACK"
+      },
+      {
+        "type": "PAWN",
+        "color": "BLACK"
+      },
+      {
+        "type": "PAWN",
+        "color": "BLACK"
+      },
+      {
+        "type": "PAWN",
+        "color": "BLACK"
+      },
+      null,
+      {
+        "type": "KNIGHT",
+        "color": "BLACK"
+      },
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      {
+        "type": "PAWN",
+        "color": "WHITE"
+      }
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      {
+        "type": "ROOK",
+        "color": "WHITE"
+      },
+      null,
+      null
+    ],
+    [
+      {
+        "type": "PAWN",
+        "color": "WHITE"
+      },
+      {
+        "type": "PAWN",
+        "color": "WHITE"
+      },
+      {
+        "type": "PAWN",
+        "color": "WHITE"
+      },
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      {
+        "type": "ROOK",
+        "color": "WHITE"
+      },
+      null,
+      null,
+      null,
+      {
+        "type": "KING",
+        "color": "WHITE"
+      }
+    ]
+  ],
+  "currentPlayer": "WHITE",
+  "status": "IN_PROGRESS",
+  "castling": {
+    "whiteKingMoved": true,
+    "blackKingMoved": true,
+    "whiteKingRookMoved": false,
+    "whiteQueenRookMoved": true,
+    "blackKingRookMoved": false,
+    "blackQueenRookMoved": false
+  },
+  "enPassantRow": -1,
+  "enPassantCol": -1,
+  "fiftyMoveCounter": 0,
+  "positionHistory": [
+    "rkbqkbkr/pppppppp/8/8/8/8/PPPPPPPP/RKBQKBKR w KQkq -",
+    "rkbqkbkr/pppppppp/8/8/8/2K5/PPPPPPPP/R1BQKBKR b KQkq -",
+    "rkbqkbkr/pp1ppppp/8/2p5/8/2K5/PPPPPPPP/R1BQKBKR w KQkq c6",
+    "rkbqkbkr/pp1ppppp/8/2p5/8/2KP4/PPP1PPPP/R1BQKBKR b KQkq -",
+    "rkb1kbkr/pp1ppppp/8/q1p5/8/2KP4/PPP1PPPP/R1BQKBKR w KQkq -",
+    "rkb1kbkr/pp1ppppp/8/q1p5/8/2KP4/PPPBPPPP/R2QKBKR b KQkq -",
+    "rkb1kbkr/pp1ppppp/8/2p5/1q6/2KP4/PPPBPPPP/R2QKBKR w KQkq -",
+    "rkb1kbkr/pp1ppppp/8/2p5/1q6/2KP4/PPPBPPPP/R1Q1KBKR b KQkq -",
+    "rkb1kbkr/pp1pp1pp/8/2p2p2/1q6/2KP4/PPPBPPPP/R1Q1KBKR w KQkq f6",
+    "rkb1kbkr/pp1pp1pp/8/2pK1p2/1q6/3P4/PPPBPPPP/R1Q1KBKR b KQkq -",
+    "rkb1kbkr/pp1pp1pp/8/2pK1p2/7q/3P4/PPPBPPPP/R1Q1KBKR w KQkq -",
+    "rkb1kbkr/ppKpp1pp/8/2p2p2/7q/3P4/PPPBPPPP/R1Q1KBKR b KQkq -",
+    "rkb2bkr/ppKppkpp/8/2p2p2/7q/3P4/PPPBPPPP/R1Q1KBKR w KQ -",
+    "Kkb2bkr/pp1ppkpp/8/2p2p2/7q/3P4/PPPBPPPP/R1Q1KBKR b KQ -",
+    "Kkb2bkr/pp1p1kpp/8/2p1pp2/7q/3P4/PPPBPPPP/R1Q1KBKR w KQ e6",
+    "Kkb2bkr/pp1p1kpp/8/2p1pp2/7q/3P1K2/PPPBPPPP/R1Q1KB1R b KQ -",
+    "Kkb2bkr/pp1p1kpp/5q2/2p1pp2/8/3P1K2/PPPBPPPP/R1Q1KB1R w KQ -",
+    "Kkb2bkr/pp1p1kpp/5q2/2p1pp2/8/3PPK2/PPPB1PPP/R1Q1KB1R b KQ -",
+    "Kkb2bkr/p2p1kpp/5q2/1pp1pp2/8/3PPK2/PPPB1PPP/R1Q1KB1R w KQ b6",
+    "Kkb2bkr/p2p1kpp/5q2/1pp1pp2/8/3PPK2/PPPBBPPP/R1Q1K2R b KQ -",
+    "Kk3bkr/pb1p1kpp/5q2/1pp1pp2/8/3PPK2/PPPBBPPP/R1Q1K2R w KQ -",
+    "Kk3bkr/pb1p1kpp/5q2/1pp1pp2/8/3PPK2/PPPBBPPP/R1Q2RK1 b - -",
+    "bk3bkr/p2p1kpp/5q2/1pp1pp2/8/3PPK2/PPPBBPPP/R1Q2RK1 w - -",
+    "bk3bkr/p2p1kpp/5q2/1pp1pp2/4P3/3P1K2/PPPBBPPP/R1Q2RK1 b - -",
+    "bk3bkr/p2p1kpp/5q2/1pp1p3/4p3/3P1K2/PPPBBPPP/R1Q2RK1 w - -",
+    "bk3bkr/p2p1kpp/5q2/1pp1p1B1/4p3/3P1K2/PPP1BPPP/R1Q2RK1 b - -",
+    "bk3bkr/p2p1kpp/8/1pp1pqB1/4p3/3P1K2/PPP1BPPP/R1Q2RK1 w - -",
+    "bk3bkr/p2p1kpp/8/1pp1pqB1/4P3/5K2/PPP1BPPP/R1Q2RK1 b - -",
+    "1k3bkr/p2p1kpp/8/1pp1pqB1/4b3/5K2/PPP1BPPP/R1Q2RK1 w - -",
+    "1k3bkr/p2p1kpp/8/1pp1pqB1/4b3/4QK2/PPP1BPPP/R4RK1 b - -",
+    "1k3bkr/p2p1kpp/8/1pp1pqB1/8/4Qb2/PPP1BPPP/R4RK1 w - -",
+    "1k3bkr/p2p1kpp/8/1pp1pqB1/8/4QB2/PPP2PPP/R4RK1 b - -",
+    "1k3bkr/p2p2pp/6k1/1pp1pqB1/8/4QB2/PPP2PPP/R4RK1 w - -",
+    "1k3bkr/p2p2pp/6k1/1pp1pqB1/7P/4QB2/PPP2PP1/R4RK1 b - h3",
+    "1k3bkr/p2p2p1/6k1/1pp1pqBp/7P/4QB2/PPP2PP1/R4RK1 w - h6",
+    "1k3bkr/p2p2p1/6k1/1pp1pqBp/7P/4QB2/PPP2PP1/R2R2K1 b - -",
+    "1k3bkr/p5p1/3p2k1/1pp1pqBp/7P/4QB2/PPP2PP1/R2R2K1 w - -",
+    "1k3bkr/p5p1/3p2k1/1pp1pqBp/4Q2P/5B2/PPP2PP1/R2R2K1 b - -",
+    "1k3b1r/p5p1/3p2kk/1pp1pqBp/4Q2P/5B2/PPP2PP1/R2R2K1 w - -",
+    "1k3b1r/p5p1/3p2kk/1pp1pQBp/7P/5B2/PPP2PP1/R2R2K1 b - -",
+    "1k3b1r/p5p1/3p2k1/1pp1pkBp/7P/5B2/PPP2PP1/R2R2K1 w - -",
+    "1k3b1r/p5p1/3p2k1/1pp1pkBp/4B2P/8/PPP2PP1/R2R2K1 b - -",
+    "1k3b1r/6p1/3p2k1/ppp1pkBp/4B2P/8/PPP2PP1/R2R2K1 w - a6",
+    "1k3b1r/6p1/3p2k1/pppRpkBp/4B2P/8/PPP2PP1/R5K1 b - -",
+    "5b1r/6p1/2kp2k1/pppRpkBp/4B2P/8/PPP2PP1/R5K1 w - -",
+    "5b1r/6p1/2kp2k1/pppRpkBp/4B2P/5P2/PPP3P1/R5K1 b - -",
+    "5b1r/6p1/3p2k1/pppRpkBp/3kB2P/5P2/PPP3P1/R5K1 w - -",
+    "5b1r/6p1/3p2k1/pppRpkBp/3kB1PP/5P2/PPP5/R5K1 b - g3",
+    "5b1r/6p1/3p2k1/pppRpkBp/4B1PP/5P2/PPP1k3/R5K1 w - -",
+    "5b1r/6p1/3p2k1/pppRpkBp/4B1PP/5P2/PPP1k3/R6K b - -",
+    "5b1r/6p1/3p2k1/pppRpkBp/4B1PP/5Pk1/PPP5/R6K w - -",
+    "5b1r/6p1/3p2k1/pppRpkBp/4B1PP/5Pk1/PPP3K1/R7 b - -",
+    "5b1r/6p1/3p2k1/pppRpkB1/4B1pP/5Pk1/PPP3K1/R7 w - -",
+    "5b1r/6p1/3p2k1/pppRpkB1/4B1PP/6k1/PPP3K1/R7 b - -",
+    "5b1r/6p1/3p2k1/pppRpkB1/4k1PP/8/PPP3K1/R7 w - -",
+    "5b1r/6p1/3p2k1/pppRpPB1/4k2P/8/PPP3K1/R7 b - -",
+    "5b1r/6p1/3p4/pppRpkB1/4k2P/8/PPP3K1/R7 w - -",
+    "5b1r/6p1/3p4/pppRpkB1/4k2P/8/PPP3K1/5R2 b - -",
+    "5b1r/6p1/3pk3/pppRp1B1/4k2P/8/PPP3K1/5R2 w - -",
+    "5b1r/6p1/3pk3/ppp1p1B1/4k2P/8/PPP3K1/3R1R2 b - -",
+    "5b1r/6p1/4k3/ppppp1B1/4k2P/8/PPP3K1/3R1R2 w - -",
+    "5b1r/6p1/4k3/ppppp1B1/4k2P/5R2/PPP3K1/3R4 b - -",
+    "5b1r/8/4k1p1/ppppp1B1/4k2P/5R2/PPP3K1/3R4 w - -",
+    "5b1r/8/4k1p1/ppppp1B1/4k2P/5R2/PPP5/3R3K b - -",
+    "5b1r/8/4k1p1/ppppp1k1/7P/5R2/PPP5/3R3K w - -"
+  ]
+}

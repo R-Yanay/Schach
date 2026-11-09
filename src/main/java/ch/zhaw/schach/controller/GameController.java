@@ -2,8 +2,10 @@ package ch.zhaw.schach.controller;
 
 import ch.zhaw.schach.ai.AI;
 import ch.zhaw.schach.model.*;
-import ch.zhaw.schach.view.ChessView;
+import ch.zhaw.schach.view.GameView;
 import javafx.application.Platform;
+
+import java.nio.file.Path;
 
 /**
  * Verbinzt View und Model.
@@ -12,15 +14,15 @@ import javafx.application.Platform;
  */
 public class GameController {
 
-    private final ChessGame game;
-    private final ChessView view;
+    private ChessGame game;
+    private final GameView view;
     private final AI ai;
     private final Color playerColor; // Farbe des menschlichen Spielers
 
     private int selectedRow = -1;
     private int selectedCol = -1;
 
-    public GameController(ChessGame game, ChessView view, int searchDepth, Color playerColor) {
+    public GameController(ChessGame game, GameView view, int searchDepth, Color playerColor) {
         this.game = game;
         this.view = view;
         this.ai = new AI(searchDepth);
@@ -39,7 +41,10 @@ public class GameController {
      */
     public void onCellClicked(int row, int col) {
         // Bei Schachmatt oder Patt nichts mehr machen
-        if (game.getStatus() == GameStatus.CHECKMATE || game.getStatus() == GameStatus.STALEMATE) {
+        if (game.getStatus() == GameStatus.CHECKMATE || game.getStatus() == GameStatus.STALEMATE ||
+            game.getStatus() == GameStatus.INSUFFICIENT_MATERIAL ||
+            game.getStatus() == GameStatus.DRAW_THREEFOLD_REPETITION ||
+            game.getStatus() == GameStatus.DRAW_FIFTY_MOVES) {
             return;
         }
 
@@ -93,7 +98,7 @@ public class GameController {
             view.updateBoard(game.getBoard());
             updateStatus();
 
-            // Trigger AI move if game is still running
+            // KI-Zug auslösen, wenn das Spiel noch läuft
             if (game.getStatus() == GameStatus.IN_PROGRESS || game.getStatus() == GameStatus.CHECK) {
                 makeAIMove();
             }
@@ -175,6 +180,15 @@ public class GameController {
             case STALEMATE:
                 view.setStatus("Stalemate! Draw.");
                 break;
+            case INSUFFICIENT_MATERIAL:
+                view.setStatus("Draw! Insufficient material.");
+                break;
+            case DRAW_THREEFOLD_REPETITION:
+                view.setStatus("Draw! Threefold repetition.");
+                break;
+            case DRAW_FIFTY_MOVES:
+                view.setStatus("Draw! 50-move rule.");
+                break;
             case CHECK:
                 view.setStatus("Check! " + playerText + " is in danger.");
                 break;
@@ -194,5 +208,36 @@ public class GameController {
      */
     public ChessGame getGame() {
         return game;
+    }
+
+    /**
+     * Speichert den aktuellen Spielzustand in den angegebenen Slot (1-3).
+     */
+    public void saveGame(int slot) {
+        GameSaver saver = new GameSaver();
+        Path savePath = Path.of("save" + slot + ".json");
+        try {
+            saver.save(game, savePath);
+            view.setStatus("Game saved to slot " + slot);
+        } catch (Exception e) {
+            view.setStatus("Save failed: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Lädt einen gespeicherten Spielzustand aus dem angegebenen Slot (1-3).
+     */
+    public void loadGame(int slot) {
+        GameSaver saver = new GameSaver();
+        Path savePath = Path.of("save" + slot + ".json");
+        try {
+            ChessGame loadedGame = saver.load(savePath);
+            this.game = loadedGame;
+            view.updateBoard(loadedGame.getBoard());
+            updateStatus();
+            view.setStatus("Game loaded from slot " + slot);
+        } catch (Exception e) {
+            view.setStatus("Load failed: " + e.getMessage());
+        }
     }
 }

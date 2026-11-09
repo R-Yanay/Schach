@@ -42,11 +42,11 @@ public class MoveValidator {
         for (int toRow = 0; toRow < 8; toRow++) {
             for (int toCol = 0; toCol < 8; toCol++) {
                 if (isValidMove(board, row, col, toRow, toCol)) {
-                    // Check for pawn promotion
+                    // Auf Bauer-Promotion prüfen
                     if (piece.getType() == PieceType.PAWN) {
                         if ((piece.getColor() == Color.WHITE && toRow == 0) ||
                             (piece.getColor() == Color.BLACK && toRow == 7)) {
-                            // Promotion – Queen as default
+                            // Promotion – standardmäßig zur Dame
                             moves.add(new Move(row, col, toRow, toCol, PieceType.QUEEN));
                         } else {
                             moves.add(new Move(row, col, toRow, toCol));
@@ -82,7 +82,7 @@ public class MoveValidator {
             }
         }
 
-        // Diagonal Capture
+        // Diagonales Schlagen
         if (Math.abs(toCol - fromCol) == 1 && toRow == fromRow + direction) {
             Piece target = board.getPiece(toRow, toCol);
             if (target != null && target.getColor() != color) {
