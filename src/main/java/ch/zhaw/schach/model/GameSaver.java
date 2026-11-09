@@ -4,10 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -25,6 +27,7 @@ public class GameSaver {
      *
      * @param game das aktuelle ChessGame
      * @param path der Dateipfad (z. B. "save.json")
+     * @throws SaveException wenn die Datei nicht geschrieben werden kann
      */
     public void save(ChessGame game, Path path) {
         JsonObject json = new JsonObject();
@@ -84,7 +87,7 @@ public class GameSaver {
         try (FileWriter writer = new FileWriter(path.toFile())) {
             gson.toJson(json, writer);
         } catch (IOException e) {
-            throw new RuntimeException("Konnte Spiel nicht speichern: " + e.getMessage(), e);
+            throw new SaveException("Konnte Spielstand nicht speichern. Festplatte voll oder keine Schreibberechtigung.", e);
         }
     }
 
@@ -93,13 +96,26 @@ public class GameSaver {
      *
      * @param path der Dateipfad (z. B. "save.json")
      * @return ein neues ChessGame mit dem geladenen Zustand
+     * @throws LoadException wenn die Datei fehlt, leer ist oder korrupt ist
      */
     public ChessGame load(Path path) {
+        // Prüfen, ob die Datei existiert
+        if (!Files.exists(path)) {
+            throw new LoadException("Kein gespeicherter Spielstand in diesem Slot.");
+        }
+
         JsonObject json;
         try (FileReader reader = new FileReader(path.toFile())) {
             json = gson.fromJson(reader, JsonObject.class);
         } catch (IOException e) {
-            throw new RuntimeException("Konnte Spiel nicht laden: " + e.getMessage(), e);
+            throw new LoadException("Konnte Spielstand-Datei nicht öffnen.", e);
+        } catch (JsonSyntaxException e) {
+            throw new LoadException("Spielstand-Datei ist beschädigt oder leer. Versuche einen anderen Slot.", e);
+        }
+
+        // Prüfen, ob JSON gültig ist
+        if (json == null) {
+            throw new LoadException("Spielstand-Datei ist leer.");
         }
 
         // Neues Spiel erstellen

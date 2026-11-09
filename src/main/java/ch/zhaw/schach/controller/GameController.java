@@ -6,6 +6,13 @@ import ch.zhaw.schach.view.GameView;
 import javafx.application.Platform;
 
 import java.nio.file.Path;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Verbinzt View und Model.
@@ -109,15 +116,26 @@ public class GameController {
 
     /**
      * Lässt die KI einen Zug berechnen und ausführen.
-     * Läuft in einem separaten Thread, damit die GUI nicht einfriert.
+     * Läuft in einem separaten Thread mit Timeout, damit die GUI nicht einfriert.
+     * Wenn die KI zu lange braucht (30 Sekunden), wird die Berechnung abgebrochen.
      */
     private void makeAIMove() {
         view.setStatus("Computer is thinking...");
 
-        new Thread(() -> {
-            Move aiMove = ai.getBestMove(game);
-            if (aiMove != null) {
-                Platform.runLater(() -> {
+        // Executor für die KI-Berechnung mit Timeout
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Move> future = executor.submit(new Callable<Move>() {
+            @Override
+            public Move call() {
+                return ai.getBestMove(game);
+            }
+        });
+
+        try {
+            // Warte maximal 30 Sekunden auf den KI-Zug
+            Move aiMove = future.get(30, TimeUnit.SECONDS);
+            Platform.runLater(() -> {
+                if (aiMove != null) {
                     game.makeMove(aiMove.getFromRow(), aiMove.getFromCol(),
                             aiMove.getToRow(), aiMove.getToCol());
                     view.clearLastMoveHighlight();
@@ -125,9 +143,28 @@ public class GameController {
                             aiMove.getToRow(), aiMove.getToCol());
                     view.updateBoard(game.getBoard());
                     updateStatus();
-                });
-            }
-        }).start();
+                } else {
+                    // KI findet keinen gültigen Zug — Spiel sollte eigentlich vorbei sein
+                    view.setStatus("Computer has no valid move. Game over.");
+                }
+            });
+        } catch (TimeoutException e) {
+            // KI braucht zu lange — Berechnung abbrechen
+            future.cancel(true);
+            Platform.runLater(() -> {
+                view.setStatus("AI timeout. Computer took too long to think. Try lower difficulty.");
+            });
+        } catch (InterruptedException e) {
+            Platform.runLater(() -> {
+                view.setStatus("AI calculation interrupted.");
+            });
+        } catch (ExecutionException e) {
+            Platform.runLater(() -> {
+                view.setStatus("AI error: " + e.getCause().getMessage());
+            });
+        } finally {
+            executor.shutdown();
+        }
     }
 
     /**
@@ -219,8 +256,10 @@ public class GameController {
         try {
             saver.save(game, savePath);
             view.setStatus("Game saved to slot " + slot);
-        } catch (Exception e) {
+        } catch (SaveException e) {
             view.setStatus("Save failed: " + e.getMessage());
+        } catch (Exception e) {
+            view.setStatus("Unexpected error while saving. Please try again.");
         }
     }
 
@@ -236,8 +275,10 @@ public class GameController {
             view.updateBoard(loadedGame.getBoard());
             updateStatus();
             view.setStatus("Game loaded from slot " + slot);
-        } catch (Exception e) {
+        } catch (LoadException e) {
             view.setStatus("Load failed: " + e.getMessage());
+        } catch (Exception e) {
+            view.setStatus("Unexpected error while loading. Slot may be corrupted.");
         }
     }
 }
