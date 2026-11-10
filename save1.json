@@ -1,0 +1,26 @@
+{
+  "board": [
+    [{"type": "KING", "color": "WHITE"}, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null],
+    [null, null, null, null, {"type": "PAWN", "color": "BLACK"}, null, null],
+    [null, null, null, null, {"type": "KING", "color": "BLACK"}, null, null, null]
+  ],
+  "currentPlayer": "BLACK",
+  "status": "IN_PROGRESS",
+  "castling": {
+    "whiteKingMoved": false,
+    "blackKingMoved": false,
+    "whiteKingRookMoved": false,
+    "whiteQueenRookMoved": false,
+    "blackKingRookMoved": false,
+    "blackQueenRookMoved": false
+  },
+  "enPassantRow": -1,
+  "enPassantCol": -1,
+  "fiftyMoveCounter": 0,
+  "positionHistory": []
+}

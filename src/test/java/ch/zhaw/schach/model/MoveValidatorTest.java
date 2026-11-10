@@ -74,8 +74,8 @@ class MoveValidatorTest {
     void rook_blockedByPiece() {
         ChessBoard board = emptyBoardWith(PieceType.ROOK, Color.WHITE, 4, 0);
         board.setPiece(4, 3, new Piece(PieceType.PAWN, Color.BLACK));
-        assertTrue(validator.isValidMove(board, 4, 0, 4, 3));  // Capture
-        assertFalse(validator.isValidMove(board, 4, 0, 4, 5)); // behind the piece
+        assertTrue(validator.isValidMove(board, 4, 0, 4, 3));  // Schlagen
+        assertFalse(validator.isValidMove(board, 4, 0, 4, 5)); // hinter der Figur
     }
 
     @Test
@@ -117,7 +117,7 @@ class MoveValidatorTest {
     void queen_combinesRookAndBishop() {
         ChessBoard board = emptyBoardWith(PieceType.QUEEN, Color.WHITE, 4, 4);
         assertTrue(validator.isValidMove(board, 4, 4, 4, 7)); // horizontal
-        assertTrue(validator.isValidMove(board, 4, 4, 0, 4)); // vertical
+        assertTrue(validator.isValidMove(board, 4, 4, 0, 4)); // vertikal
         assertTrue(validator.isValidMove(board, 4, 4, 1, 1)); // diagonal
     }
 

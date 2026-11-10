@@ -5,13 +5,13 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests fuer die "Unzureichendes Material"-Remis-Regel.
- * Prueft alle Remis-Faelle und negative Faelle (Matt noch moeglich).
+ * Tests fuer die "Insufficient Material" Remis-Regel.
+ * Prueft alle Remis-Faelle und negative Faelle (Checkmate noch moeglich).
  */
 class InsufficientMaterialTest {
 
     /**
-     * Hilfsmethode: Leert das gesamte Brett.
+     * Hilfsfunktion: leert das gesamte Brett.
      */
     private void clearBoard(ChessGame game) {
         ChessBoard board = game.getBoard();
@@ -23,7 +23,7 @@ class InsufficientMaterialTest {
     }
 
     /**
-     * Hilfsmethode: Setzt beide Koenige auf das Brett.
+     * Hilfsfunktion: setzt beide Kings auf das Brett.
      */
     private void setKings(ChessGame game) {
         ChessBoard board = game.getBoard();
@@ -32,7 +32,7 @@ class InsufficientMaterialTest {
     }
 
     /**
-     * Nur Koenige auf dem Brett → Remis.
+     * Nur Kings auf dem Brett → Remis.
      */
     @Test
     void onlyKings_isDraw() {
@@ -44,7 +44,7 @@ class InsufficientMaterialTest {
     }
 
     /**
-     * Einseitig unzureichendes Material → Remis.
+     * Eine Seite hat unzureichendes Material → Remis.
      * K+B vs K und K+N vs K (Farbe spielt keine Rolle).
      */
     @Test
@@ -75,7 +75,7 @@ class InsufficientMaterialTest {
     }
 
     /**
-     * Beidseitig unzureichendes Material → Remis.
+     * Beide Seiten haben unzureichendes Material → Remis.
      * K+B vs K+B und K+N vs K+N.
      */
     @Test
@@ -99,8 +99,8 @@ class InsufficientMaterialTest {
     }
 
     /**
-     * Matt noch moeglich → KEIN Remis.
-     * K+R vs K (Turm kann matt setzen) und volles Spiel.
+     * Checkmate noch moeglich → KEIN Remis.
+     * K+R vs K (Rook kann Checkmate geben) und volles Spiel.
      */
     @Test
     void mattStillPossible_notDraw() {

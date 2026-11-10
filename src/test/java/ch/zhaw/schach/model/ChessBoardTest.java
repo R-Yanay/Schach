@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests fuer die ChessBoard-Klasse.
- * Prueft, dass Figuren korrekt gesetzt und gelesen werden und die Startposition richtig ist.
+ * Bestaetigt, dass Figuren korrekt gesetzt und gelesen werden und die Startposition korrekt ist.
  */
 class ChessBoardTest {
 
@@ -14,7 +14,7 @@ class ChessBoardTest {
     void setAndGetPiece_roundtrip() {
         ChessBoard board = new ChessBoard();
 
-        // Setze eine Figur auf ein leeres Feld
+        // Eine Figur auf ein leeres Feld setzen
         Piece bishop = new Piece(PieceType.BISHOP, Color.WHITE);
         board.setPiece(3, 3, bishop);
 
@@ -24,7 +24,7 @@ class ChessBoardTest {
         assertEquals(PieceType.BISHOP, retrieved.getType());
         assertEquals(Color.WHITE, retrieved.getColor());
 
-        // Entferne die Figur mit null
+        // Figur mit null entfernen
         board.setPiece(3, 3, null);
         assertNull(board.getPiece(3, 3));
     }
@@ -33,7 +33,7 @@ class ChessBoardTest {
     void startPosition_hasAllPieces() {
         ChessBoard board = new ChessBoard();
 
-        // Weiße Figuren Reihe (row 7)
+        // Weiss Figuren Reihe (row 7)
         assertEquals(PieceType.ROOK, board.getPiece(7, 0).getType());
         assertEquals(PieceType.KNIGHT, board.getPiece(7, 1).getType());
         assertEquals(PieceType.BISHOP, board.getPiece(7, 2).getType());
@@ -44,12 +44,12 @@ class ChessBoardTest {
         assertEquals(PieceType.ROOK, board.getPiece(7, 7).getType());
         assertEquals(Color.WHITE, board.getPiece(7, 4).getColor());
 
-        // Schwarze Figuren Reihe (row 0)
+        // Schwarz Figuren Reihe (row 0)
         assertEquals(PieceType.QUEEN, board.getPiece(0, 3).getType());
         assertEquals(PieceType.KING, board.getPiece(0, 4).getType());
         assertEquals(Color.BLACK, board.getPiece(0, 4).getColor());
 
-        // Bauernreihen
+        // Pawn Reihen
         for (int col = 0; col < 8; col++) {
             assertEquals(PieceType.PAWN, board.getPiece(1, col).getType());
             assertEquals(Color.BLACK, board.getPiece(1, col).getColor());
@@ -60,7 +60,7 @@ class ChessBoardTest {
         // Mittlere Reihen sind leer
         for (int row = 2; row <= 5; row++) {
             for (int col = 0; col < 8; col++) {
-                assertNull(board.getPiece(row, col), "Feld " + row + "," + col + " sollte leer sein");
+                assertNull(board.getPiece(row, col), "Square " + row + "," + col + " should be empty");
             }
         }
     }

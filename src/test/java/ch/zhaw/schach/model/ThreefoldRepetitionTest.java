@@ -7,25 +7,25 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests fuer die dreimalige Stellungswiederholung.
- * Eine Stellung die 3 Mal auftritt → Remis.
- * Eine Stellung die 2 Mal auftritt → kein Remis.
+ * Tests fuer dreimalige Stellungswiederholung.
+ * Eine Position, die 3 Mal auftritt → Remis.
+ * Eine Position, die 2 Mal auftritt → kein Remis.
  */
 class ThreefoldRepetitionTest {
 
     /**
-     * Stellung die 3 Mal auftritt → Remis durch dreimalige Wiederholung.
-     * Nutzt getCurrentHash() um den echten Hash des Anfangsbretts zu erhalten
-     * und positionHistory damit zu fuellen.
+     * Position, die 3 Mal auftritt → Remis durch dreimalige Wiederholung.
+     * Verwendet getCurrentHash() fuer den echten Hash des Startbretts
+     * und fueellt positionHistory damit.
      */
     @Test
     void threefoldRepetition_isDraw() {
         ChessGame game = new ChessGame();
 
-        // Den echten Hash des aktuellen Bretts holen
+        // Echten Hash der aktuellen Position holen
         String currentHash = game.getCurrentHash();
 
-        // positionHistory mit demselben Hash 3 Mal fuellen
+        // positionHistory 3 Mal mit demselben Hash fueellen
         List<String> history = game.getPositionHistory();
         history.clear();
         history.add(currentHash);
@@ -37,7 +37,7 @@ class ThreefoldRepetitionTest {
     }
 
     /**
-     * Stellung die 4 Mal auftritt → auch Remis (mehr als 3 ist ebenfalls Remis).
+     * Position, die 4 Mal auftritt → auch Remis (mehr als 3 ist auch Remis).
      */
     @Test
     void fourfoldRepetition_isDraw() {
@@ -56,8 +56,8 @@ class ThreefoldRepetitionTest {
     }
 
     /**
-     * Stellung die nur 2 Mal auftritt → KEIN Remis.
-     * Zwei gleiche Hashes reichen nicht fuer Remis.
+     * Position, die nur 2 Mal auftritt → KEIN Remis.
+     * Zwei identische Hashes reichen nicht fuer Remis.
      */
     @Test
     void twofoldRepetition_notDraw() {
@@ -74,8 +74,8 @@ class ThreefoldRepetitionTest {
     }
 
     /**
-     * Unterschiedliche Stellungen → KEIN Remis.
-     * 3 verschiedene Hashes sollten keine Wiederholung erkennen.
+     * Verschiedene Positionen → KEIN Remis.
+     * 3 verschiedene Hashes sollten keine Wiederholung ausloesen.
      */
     @Test
     void differentPositions_notDraw() {

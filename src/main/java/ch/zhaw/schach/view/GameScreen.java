@@ -6,11 +6,14 @@ import ch.zhaw.schach.model.ChessBoard;
 import ch.zhaw.schach.model.Color;
 import ch.zhaw.schach.model.Piece;
 import ch.zhaw.schach.model.PieceStyle;
+import ch.zhaw.schach.model.PieceType;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import java.util.Optional;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -47,9 +50,10 @@ class GameScreen implements GameView {
 
     private final boolean flipped;
 
+    private VBox rootContainer;
     private GridPane boardGrid;
+    private StackPane boardStack;  // Wrapper für Overlay-Unterstützung
     private Label statusLabel;
-    private StackPane[][] cellStacks;
     private Pane[][] cellPanes;
     private ImageView[][] cellImages;
     private Circle[][] moveDots;
@@ -76,9 +80,9 @@ class GameScreen implements GameView {
      * Zeigt das Spielfenster mit dem gegebenen Brett.
      */
     void show(ChessBoard board) {
-        VBox root = new VBox(0);
-        root.setPadding(new Insets(0));
-        root.setAlignment(Pos.CENTER);
+        rootContainer = new VBox(0);
+        rootContainer.setPadding(new Insets(0));
+        rootContainer.setAlignment(Pos.CENTER);
 
         // Menüleiste oben
         MenuBar menuBar = new MenuBar();
@@ -115,13 +119,13 @@ class GameScreen implements GameView {
 
         gameMenu.getItems().addAll(saveMenu, loadMenu, newGameItem);
         menuBar.getMenus().add(gameMenu);
-        root.getChildren().add(menuBar);
+        rootContainer.getChildren().add(menuBar);
 
         // Status-Label (klein, über dem Brett)
         statusLabel = new Label("Chess");
         statusLabel.setFont(Font.font(12));
         statusLabel.setPadding(new Insets(4, 10, 4, 10));
-        root.getChildren().add(statusLabel);
+        rootContainer.getChildren().add(statusLabel);
 
         // Schachbrett
         boardGrid = new GridPane();
@@ -131,7 +135,6 @@ class GameScreen implements GameView {
 
         cellPanes = new Pane[8][8];
         cellImages = new ImageView[8][8];
-        cellStacks = new StackPane[8][8];
         moveDots = new Circle[8][8];
 
         for (int visRow = 0; visRow < 8; visRow++) {
@@ -172,17 +175,23 @@ class GameScreen implements GameView {
                 stack.setPrefSize(60, 60);
                 stack.setAlignment(Pos.CENTER);
 
-                // Klick-Handler
+                // Linksklick-Handler
                 stack.setOnMouseClicked(e -> {
                     if (controller != null) {
                         controller.onCellClicked(boardRow, boardCol);
                     }
                 });
 
+                // Rechtsklick-Handler — Auswahl abbrechen
+                stack.setOnMousePressed(e -> {
+                    if (e.getButton().name().equals("SECONDARY") && controller != null) {
+                        controller.cancelSelection();
+                    }
+                });
+
                 // Arrays werden mit Brett-Koordinaten indiziert
                 cellPanes[boardRow][boardCol] = cellPane;
                 cellImages[boardRow][boardCol] = cellImage;
-                cellStacks[boardRow][boardCol] = stack;
                 moveDots[boardRow][boardCol] = dot;
 
                 // GridPane bekommt visuelle Position
@@ -190,10 +199,13 @@ class GameScreen implements GameView {
             }
         }
 
-        root.getChildren().add(boardGrid);
+        // StackPane als Wrapper um das Brett — ermöglicht Overlays ohne Layout-Verschiebung
+        boardStack = new StackPane(boardGrid);
+        boardStack.setStyle("-fx-background-color: transparent;");
+        rootContainer.getChildren().add(boardStack);
 
         // Szene
-        Scene scene = new Scene(root, 490, 540);
+        Scene scene = new Scene(rootContainer, 490, 540);
         stage.setTitle("Chess");
         stage.setScene(scene);
         stage.setResizable(false);
@@ -333,6 +345,164 @@ class GameScreen implements GameView {
         dot.setVisible(false);
         dot.setManaged(false);
         dot.setRadius(10);
+    }
+
+    @Override
+    public void showTimeoutDialog(Runnable retryAction, Runnable restartAction) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("AI Timeout");
+        alert.setHeaderText("The AI is taking too long to think.");
+        alert.setContentText("What would you like to do?");
+
+        ButtonType retryButton = new ButtonType("Wait again");
+        ButtonType newGameButton = new ButtonType("New Game");
+        alert.getButtonTypes().setAll(retryButton, newGameButton);
+
+        alert.showAndWait().ifPresent(response -> {
+            if (response == retryButton) {
+                retryAction.run();
+            } else if (response == newGameButton) {
+                restartAction.run();
+            }
+        });
+    }
+
+    @Override
+    public void restartGame() {
+        restartCallback.onRestart();
+    }
+
+    @Override
+    public int showLoadDialog(int failedSlot) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Load failed");
+        alert.setHeaderText("Slot " + failedSlot + " is empty or corrupted.");
+        alert.setContentText("Would you like to try another slot?");
+
+        // Verfuegbare Slots sammeln (alle ausser dem fehlgeschlagenen)
+        java.util.List<ButtonType> buttons = new java.util.ArrayList<>();
+        for (int slot = 1; slot <= 3; slot++) {
+            if (slot != failedSlot) {
+                buttons.add(new ButtonType("Slot " + slot));
+            }
+        }
+        buttons.add(new ButtonType("Cancel"));
+        alert.getButtonTypes().setAll(buttons);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent()) {
+            String text = result.get().getText();
+            if (text != null && text.startsWith("Slot ")) {
+                return Integer.parseInt(text.substring(5));
+            }
+        }
+        return -1;  // Cancelled
+    }
+
+    @Override
+    public void showPromotionDialog(Color color, java.util.function.IntConsumer onSelected) {
+        // Overlay über dem Brett via boardStack — verschiebt das GridPane nicht
+        StackPane overlay = new StackPane();
+        overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.7);");
+        overlay.setVisible(false);
+        overlay.setManaged(false);
+
+        // Overlay deckt den boardStack (Brett-Wrapper) ab
+        overlay.prefWidthProperty().bind(boardStack.widthProperty());
+        overlay.prefHeightProperty().bind(boardStack.heightProperty());
+
+        // Die 4 Promotion-Optionen
+        PieceType[] options = {PieceType.QUEEN, PieceType.ROOK, PieceType.BISHOP, PieceType.KNIGHT};
+        String[] names = {"Queen", "Rook", "Bishop", "Knight"};
+
+        // GridPane 2x2 für die Kacheln
+        GridPane tileGrid = new GridPane();
+        tileGrid.setHgap(15);
+        tileGrid.setVgap(15);
+        tileGrid.setAlignment(Pos.CENTER);
+
+        for (int i = 0; i < 4; i++) {
+            final int index = i;
+            VBox tile = new VBox(5);
+            tile.setAlignment(Pos.CENTER);
+            tile.setPrefSize(100, 110);
+            tile.setStyle("-fx-background-color: #333333; -fx-background-radius: 8; -fx-border-color: #666; -fx-border-radius: 8;");
+            tile.setCursor(javafx.scene.Cursor.HAND);
+
+            // ImageView für die Figur — verwendet setPieceImage() statt duplizierter SVG-Logik
+            ImageView imageView = new ImageView();
+            imageView.setFitHeight(60);
+            imageView.setFitWidth(60);
+            imageView.setPreserveRatio(true);
+
+            // Temporaer die Groesse anpassen fuer die Promotion-Kacheln (60 statt 50)
+            Piece tempPiece = new Piece(options[i], color);
+            setPieceImage(imageView, tempPiece);
+            imageView.setFitHeight(60);
+            imageView.setFitWidth(60);
+
+            // Label mit dem Namen
+            Label label = new Label(names[i]);
+            label.setFont(Font.font(13));
+            label.setTextFill(javafx.scene.paint.Color.WHITE);
+
+            tile.getChildren().addAll(imageView, label);
+
+            // Hilfsfunktion zum Schliessen des Overlays
+            javafx.event.EventHandler<javafx.event.Event> closeOverlay = event -> {
+                overlay.setVisible(false);
+                overlay.setManaged(false);
+                boardStack.getChildren().remove(overlay);
+            };
+
+            // Klick auf Kachel wählt die Figur
+            tile.setOnMouseClicked(e -> {
+                closeOverlay.handle(null);
+                onSelected.accept(index);
+            });
+
+            // Rechtsklick bricht ab
+            tile.setOnMousePressed(e -> {
+                if (e.getButton().name().equals("SECONDARY")) {
+                    closeOverlay.handle(null);
+                    onSelected.accept(-1);
+                }
+            });
+
+            // Grid-Position: 2x2 Layout
+            int gridRow = i / 2;
+            int gridCol = i % 2;
+            tileGrid.add(tile, gridCol, gridRow);
+        }
+
+        overlay.getChildren().add(tileGrid);
+
+        // Rechtsklick auf den dunklen Hintergrund bricht auch ab
+        overlay.setOnMousePressed(e -> {
+            if (e.getButton().name().equals("SECONDARY")) {
+                overlay.setVisible(false);
+                overlay.setManaged(false);
+                boardStack.getChildren().remove(overlay);
+                onSelected.accept(-1);
+            }
+        });
+
+        // ESC-Taste bricht ab
+        overlay.addEventHandler(javafx.scene.input.KeyEvent.KEY_PRESSED, e -> {
+            if (e.getCode() == javafx.scene.input.KeyCode.ESCAPE) {
+                overlay.setVisible(false);
+                overlay.setManaged(false);
+                boardStack.getChildren().remove(overlay);
+                onSelected.accept(-1);
+            }
+        });
+        overlay.setFocusTraversable(true);
+
+        // Overlay über dem Brett anzeigen (im StackPane, nicht im GridPane)
+        boardStack.getChildren().add(overlay);
+        overlay.setVisible(true);
+        overlay.setManaged(true);
+        overlay.requestFocus();
     }
 
     // -----------------------------------------------------------------

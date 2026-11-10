@@ -1,6 +1,7 @@
 package ch.zhaw.schach.view;
 
 import ch.zhaw.schach.model.ChessBoard;
+import ch.zhaw.schach.model.Color;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 
@@ -34,4 +35,37 @@ public interface GameView {
 
     /** Entfernt den Punkt von einem Feld. */
     void clearDot(int row, int col);
+
+    /**
+     * Zeigt einen Dialog, wenn die KI zu lange zum Nachdenken braucht.
+     * Der Benutzer kann zwischen "Nochmal warten" und "Neues Spiel" wählen.
+     *
+     * @param retryAction wird ausgeführt, wenn der Benutzer nochmal warten möchte
+     * @param restartAction wird ausgeführt, wenn der Benutzer ein neues Spiel starten möchte
+     */
+    void showTimeoutDialog(Runnable retryAction, Runnable restartAction);
+
+    /**
+     * Zeigt einen Dialog, wenn ein Slot leer oder beschädigt ist.
+     * Der Benutzer kann einen anderen Slot zum Laden wählen oder abbrechen.
+     *
+     * @param failedSlot der Slot, der fehlgeschlagen ist (1-3)
+     * @return der gewählte Slot (1-3) oder -1 wenn abgebrochen
+     */
+    int showLoadDialog(int failedSlot);
+
+    /**
+     * Zeigt einen Promotion-Dialog, wenn ein Bauer das Ende erreicht.
+     * Der Benutzer wählt zwischen Queen, Rook, Bishop und Knight.
+     * Die Auswahl wird über den Callback zurückgegeben.
+     *
+     * @param color die Farbe des promovierenden Bauers
+     * @param onSelected wird mit der gewählten Figur aufgerufen (0=QUEEN, 1=ROOK, 2=BISHOP, 3=KNIGHT, -1=abgebrochen)
+     */
+    void showPromotionDialog(Color color, java.util.function.IntConsumer onSelected);
+
+    /**
+     * Beendet das aktuelle Spiel und kehrt zum Startmenü zurück.
+     */
+    void restartGame();
 }

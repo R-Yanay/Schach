@@ -6,29 +6,34 @@ Ein Schachspiel mit grafischer Oberfläche, das du gegen einen Computer-Gegner (
 
 - **Startbildschirm** mit konfigurierbaren Einstellungen:
   - Schwierigkeitsauswahl (Easy, Medium, Hard)
-  - Spielerfarbe wählen (Weiß oder Schwarz)
-  - Figuren-Style wählen (Alpha, Leipzig, Horsey) mit Vorschau-Bildern
-  - Brett-Theme wählen (Wood, Mono, Ocean) mit 2×2 Schachbrett-Muster
-- **Grafisches Schachbrett** mit JavaFX (8×8 Felder, 3 Farbschemen)
+  - Spielerfarbe waehlen (Weiss oder Schwarz)
+  - Figuren-Style waehlen (Alpha, Leipzig, Horsey) mit Vorschau-Bildern
+  - Brett-Theme waehlen (Wood, Mono, Ocean) mit 2x2 Schachbrett-Muster
+- **Grafisches Schachbrett** mit JavaFX (8x8 Felder, 3 Farbschemen)
 - **Alle 6 Figuren-Typen** mit korrekten Bewegungsregeln
 - **Klick-Steuerung**: Figur anklicken → Ziel-Feld anklicken
-- **Alle Schach-Regeln**: Rochade, En-Passant, Bauer-Promotion, Schach/Schachmatt
+- **Rechtsklick**: Aktive Figurauswahl abbrechen
+- **Alle Schach-Regeln**: Rochade (Kingside/Queenside unabhaengig), En-Passant, Bauer-Promotion (Overlay-Dialog mit 4 Figuren zur Auswahl), Schach/Schachmatt
 - **Alle Remis-Regeln**:
   - Patt (Stalemate)
   - Unzureichendes Material (K vs K, K+B vs K, K+N vs K, K+B vs K+B, K+N vs K+N)
   - Dreimalige Stellungswiederholung (Hash-Vergleich)
-  - 50-Züge-Regel (100 Halbzüge ohne Bauerzug und ohne Schlagen)
+  - 50-Zuege-Regel (100 Halbzuege ohne Bauerzug und ohne Schlagen)
 - **Computer-Gegner** mit konfigurierbarem Minimax-Algorithmus (Tiefe 1–4)
-- **Visuelle Hilfe**: Grüne Punkte für gültige Züge, rote Ringe für Schläge, grüne Markierung für letzten Zug
-- **Menüleiste** im Spielfenster: Game → Save (Slot 1/2/3), Load (Slot 1/2/3), New Game
+- **Visuelle Hilfe**: Gruene Punkte fuer gueltige Zuege, rote Ringe fuer Schlaege, gruen Markierung fuer letzten Zug
+- **Menueleiste** im Spielfenster: Game → Save (Slot 1/2/3), Load (Slot 1/2/3), New Game
 - **Speichern/Laden** des Spielzustands als JSON (3 nummerierte Slots)
-- **Fehlerbehandlung**: Freundliche Meldungen bei fehlenden oder beschädigten Spielständen und KI-Timeout (30 Sekunden)
+- **Fehlerbehandlung**:
+  - KI-Timeout (30s): Dialog mit "Wait again" (60s) oder "New Game"
+  - Speichern fehlgeschlagen: Automatischer Fallback zum naechsten Slot mit Benachrichtigung
+  - Laden fehlgeschlagen: Dialog mit Slot-Wahl (Slot 2 / Slot 3 / Cancel)
+  - Alle Fehler werden in `chess.log` protokolliert
 
 ## Voraussetzungen
 
-- **Java 25** (oder höher)
-- **Maven** für den Build
-- **JavaFX 27.0.1** (wird automatisch von Maven heruntergeladen)
+- **Java 25** (oder hoeher)
+- **Maven** fuer den Build
+- **JavaFX 27.0.1** 
 
 ## Projekt starten
 
@@ -46,17 +51,19 @@ mvn compile javafx:run
 
 ## Bedienung
 
-1. **Einstellungen wählen** auf dem Startbildschirm:
+1. **Einstellungen waehlen** auf dem Startbildschirm:
    - Schwierigkeit: Easy, Medium oder Hard (blau hervorgehoben)
    - Spielerfarbe: White oder Black (orange hervorgehoben)
    - Figuren-Style: Alpha, Leipzig oder Horsey (lila hervorgehoben)
-   - Brett-Theme: Wood, Mono oder Ocean (grün hervorgehoben)
+   - Brett-Theme: Wood, Mono oder Ocean (gruen hervorgehoben)
 2. **Spiel starten**: Auf "New Game" klicken
-3. **Figur auswählen**: Klicke auf eine eigene Figur (gelbe Markierung)
-4. **Zug ausführen**: Klicke auf ein Feld mit grünem Punkt (Zug) oder rotem Ring (Schlag)
-5. **Computer zieht**: Nach deinem Zug denkt die KI nach und zieht automatisch
-6. **Speichern/Laden**: Über die Menüleiste "Game" → "Save" oder "Load" → Slot 1/2/3
-7. **Neues Spiel**: Über "Game" → "New Game" zurück zum Startbildschirm
+3. **Figur auswaehlen**: Klicke auf eine eigene Figur (gelbe Markierung)
+4. **Zug ausfuehren**: Klicke auf ein Feld mit gruenem Punkt (Zug) oder rotem Ring (Schlag)
+5. **Bauer-Promotion**: Wenn ein Bauer das Ende erreicht, erscheint ein Overlay-Dialog direkt über dem Brett mit 4 Figuren zur Auswahl (Queen, Rook, Bishop, Knight). Rechtsklick oder ESC bricht die Auswahl ab.
+6. **Computer zieht**: Nach deinem Zug denkt die KI nach und zieht automatisch
+7. **Rechtsklick**: Aktive Figurauswahl abbrechen (Highlight und Punkte verschwinden)
+8. **Speichern/Laden**: Ueber die Menueleiste "Game" → "Save" oder "Load" → Slot 1/2/3
+9. **Neues Spiel**: Ueber "Game" → "New Game" zurueck zum Startbildschirm
 
 ## Architektur
 
@@ -86,11 +93,40 @@ Schach/src/main/java/ch/zhaw/schach/
 │   └── Evaluator.java             # Bewertet Stellungen (Material + Position)
 ├── view/
 │   ├── ChessView.java             # JavaFX Application-Einstieg, orchestriert Screens
-│   ├── GameScreen.java            # Spielfenster mit Brett und Menüleiste
+│   ├── GameScreen.java            # Spielfenster mit Brett und Menueleiste
 │   ├── GameView.java              # Interface: Vertrag zwischen Controller und View
 │   └── StartScreen.java           # Startbildschirm mit Einstellungen
 └── controller/
-    └── GameController.java        # Verbinzt GameView-Interface und Model
+    └── GameController.java        # Verbindet GameView-Interface und Model
+```
+
+## Fehlerbehandlung
+
+Das Projekt verwendet benutzerdefinierte Exceptions und Java-Standard-Exceptions, um Fehler abzufangen und dem Benutzer freundliche Meldungen zu zeigen.
+
+### Benutzerdefinierte Exceptions
+
+| Exception | Wird geworfen bei | Benutzer-Option |
+|-----------|------------------|-----------------|
+| **`SaveException`** | Speichern fehlschlägt (Festplatte voll, keine Berechtigung) | Automatischer Fallback: nächster Slot wird versucht. Bei Erfolg: "Slot 1 failed. Game saved to slot 2 instead." |
+| **`LoadException`** | Laden fehlschlägt (Datei fehlt, leer, beschädigt) | Dialog erscheint: Benutzer wählt einen anderen Slot (Slot 2 / Slot 3) oder bricht ab |
+
+### KI-Timeout (Standard-Java-Exceptions)
+
+| Exception | Wird geworfen bei | Benutzer-Option |
+|-----------|------------------|-----------------|
+| **`TimeoutException`** | KI braucht länger als 30 Sekunden | Dialog: "Wait again" (KI neu mit 60s) oder "New Game" |
+| **`InterruptedException`** | KI-Thread wird unterbrochen | Status: "AI calculation interrupted." |
+| **`ExecutionException`** | Bug in der KI-Berechnung | Status: "AI error: ..." |
+
+### Fehlerprotokoll
+
+Jeder Fehler wird in `chess.log` protokolliert (Zeitstempel, Kategorie, Meldung, Ursache). Die Datei liegt im Projektordner neben den Spielstand-Dateien.
+
+```
+2026-11-10T14:05:23.456 [AI] Timeout after 30 seconds.
+2026-11-10T14:06:12.789 [SAVE] Slot 1: Konnte Spielstand nicht speichern.
+2026-11-10T14:07:45.012 [LOAD] Slot 2: Kein gespeicherter Spielstand in diesem Slot.
 ```
 
 ## Was ich gelernt habe
@@ -104,16 +140,16 @@ Bei diesem Projekt habe ich JavaFX kennengelernt und verstanden, wie man eine gr
 - **Minimax-Algorithmus**: Computer-KI mit konfigurierbarer Suchtiefe
 - **JSON-Speicherung**: Spielzustand serialisieren und laden mit Gson-Bibliothek
 - **JUnit-Tests**: Unit-Tests für Spiellogik, Remis-Regeln und Speichern/Laden
-- **Fehlerbehandlung**: Benutzerdefinierte Exceptions (SaveException, LoadException, AIException) mit try-catch und freundlichen Fehlermeldungen
+- **Fehlerbehandlung**: Benutzerdefinierte Exceptions (SaveException, LoadException) und Standard-Java-Exceptions (TimeoutException) mit try-catch, Dialogen und Fehlerprotokoll (chess.log)
 - **Git**: Versionskontrolle für den Entwicklungsprozess
 
 ## Tests
 
-54 JUnit-Tests in 9 Testdateien decken die Spiellogik ab:
+57 JUnit-Tests in 9 Testdateien decken die Spiellogik ab:
 
 | Testdatei | Tests | Abgedeckt |
 |-----------|-------|-----------|
-| ChessGameTest | 19 | Züge, Rochade, En-Passant, Promotion, Schach, Schachmatt, Patt |
+| ChessGameTest | 22 | Züge, Rochade (inkl. Kingside/Queenside Unabhängigkeit), En-Passant, Promotion (Queen, Rook), Schach, Schachmatt, Patt |
 | MoveValidatorTest | 16 | Bewegungsregeln aller 6 Figuren-Typen |
 | InsufficientMaterialTest | 4 | Unzureichendes Material (K vs K, K+B vs K, K+N vs K, K+B vs K+B, K+N vs K+N) |
 | ThreefoldRepetitionTest | 5 | Dreimalige Stellungswiederholung (Hash-Vergleich) |
@@ -127,7 +163,7 @@ Bei diesem Projekt habe ich JavaFX kennengelernt und verstanden, wie man eine gr
 mvn test
 ```
 
-**Tests run: 54, Failures: 0, Errors: 0, BUILD SUCCESS**
+**Tests run: 57, Failures: 0, Errors: 0, BUILD SUCCESS**
 
 ## Lizenz
 

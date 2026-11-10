@@ -8,7 +8,7 @@ public enum BoardTheme {
     /** Klassisches Holzbrett (Standard) */
     WOOD("#F0D9B5", "#B58863"),
 
-    /** Schwarz-Weiß Brett */
+    /** Schwarz-Weiss Brett */
     MONOCHROME("#FFFFFF", "#777777"),
 
     /** Blau-Türkis Brett */

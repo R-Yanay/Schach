@@ -46,7 +46,7 @@ public class MoveValidator {
                     if (piece.getType() == PieceType.PAWN) {
                         if ((piece.getColor() == Color.WHITE && toRow == 0) ||
                             (piece.getColor() == Color.BLACK && toRow == 7)) {
-                            // Promotion – standardmäßig zur Dame
+                            // Promotion – standardmaessig zur Dame
                             moves.add(new Move(row, col, toRow, toCol, PieceType.QUEEN));
                         } else {
                             moves.add(new Move(row, col, toRow, toCol));

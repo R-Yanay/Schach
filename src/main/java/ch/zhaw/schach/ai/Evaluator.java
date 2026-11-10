@@ -4,7 +4,7 @@ import ch.zhaw.schach.model.*;
 
 /**
  * Bewertet eine Schachstellung.
- * Positive Werte = Vorteil für Weiß, negative Werte = Vorteil für Schwarz.
+ * Positive Werte = Vorteil für Weiss, negative Werte = Vorteil für Schwarz.
  */
 public class Evaluator {
 
@@ -30,7 +30,7 @@ public class Evaluator {
 
     /**
      * Bewertet eine Stellung.
-     * Positiv = Vorteil für Weiß, negativ = Vorteil für Schwarz.
+     * Positiv = Vorteil fuer Weiss, negativ = Vorteil fuer Schwarz.
      */
     public int evaluate(ChessBoard board) {
         int score = 0;

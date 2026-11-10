@@ -26,11 +26,6 @@ public class ChessGame {
     private int enPassantRow = -1;
     private int enPassantCol = -1;
 
-    // Letzter Zug (für Hervorhebung in der GUI)
-    private int lastMoveFromRow = -1;
-    private int lastMoveFromCol = -1;
-    private int lastMoveToRow = -1;
-    private int lastMoveToCol = -1;
 
     // Dreimalige Stellungswiederholung: speichert alle Brett-Hashes
     private final List<String> positionHistory = new ArrayList<>();
@@ -48,8 +43,14 @@ public class ChessGame {
     /**
      * Führt einen Zug aus, wenn er gültig ist.
      * Gibt true zurück, wenn der Zug ausgeführt wurde.
+     *
+     * @param fromRow Startzeile
+     * @param fromCol Startspalte
+     * @param toRow Zielzeile
+     * @param toCol Zielspalte
+     * @param promotionType der Promotion-Typ (QUEEN, ROOK, BISHOP, KNIGHT) oder null
      */
-    public boolean makeMove(int fromRow, int fromCol, int toRow, int toCol) {
+    public boolean makeMove(int fromRow, int fromCol, int toRow, int toCol, PieceType promotionType) {
         Piece piece = board.getPiece(fromRow, fromCol);
         if (piece == null) return false;
 
@@ -106,11 +107,13 @@ public class ChessGame {
         Piece capturedPiece = board.getPiece(toRow, toCol);
         board.setPiece(fromRow, fromCol, null);
 
-        // Bauer-Promotion (automatisch zur Dame)
+        // Bauer-Promotion
         if (piece.getType() == PieceType.PAWN) {
             if ((piece.getColor() == Color.WHITE && toRow == 0) ||
                 (piece.getColor() == Color.BLACK && toRow == 7)) {
-                board.setPiece(toRow, toCol, new Piece(PieceType.QUEEN, piece.getColor()));
+                // Promotion-Typ wird als Parameter uebergeben; default ist QUEEN
+                PieceType promoteTo = (promotionType != null) ? promotionType : PieceType.QUEEN;
+                board.setPiece(toRow, toCol, new Piece(promoteTo, piece.getColor()));
             } else {
                 board.setPiece(toRow, toCol, piece);
             }
@@ -127,11 +130,6 @@ public class ChessGame {
      * @param isCapture true wenn eine Figur geschlagen wurde (inklusive En-Passant)
      */
     private void afterMove(Piece piece, int fromRow, int fromCol, int toRow, int toCol, boolean isCapture) {
-        // Letzten Zug speichern
-        lastMoveFromRow = fromRow;
-        lastMoveFromCol = fromCol;
-        lastMoveToRow = toRow;
-        lastMoveToCol = toCol;
         // Rochade-Flags aktualisieren
         if (piece.getType() == PieceType.KING) {
             if (piece.getColor() == Color.WHITE) whiteKingMoved = true;
@@ -177,20 +175,23 @@ public class ChessGame {
             // Kurze Rochade (Königsseite)
             if (color == Color.WHITE && whiteKingRookMoved) return false;
             if (color == Color.BLACK && blackKingRookMoved) return false;
-            // Felder d1/e1 oder d8/e8 müssen frei sein
+            // Felder zwischen Koenig und Turm muessen frei sein (f1, g1 fuer Weiss)
             if (board.getPiece(fromRow, fromCol + 1) != null || board.getPiece(fromRow, fromCol + 2) != null) return false;
-            // König darf nicht durch Schach ziehen
+            // Koenig darf nicht durch Schach ziehen (f1) oder ins Schach (g1)
             if (isSquareAttacked(board, fromRow, fromCol + 1, color)) return false;
+            if (isSquareAttacked(board, fromRow, fromCol + 2, color)) return false;
         } else {
             // Lange Rochade (Damenseite)
             if (color == Color.WHITE && whiteQueenRookMoved) return false;
             if (color == Color.BLACK && blackQueenRookMoved) return false;
-            // Felder b1/c1/d1 oder b8/c8/d8 müssen frei sein
+            // Felder zwischen Koenig und Turm muessen frei sein (b1, c1, d1 fuer Weiss)
             if (board.getPiece(fromRow, fromCol - 1) != null ||
                 board.getPiece(fromRow, fromCol - 2) != null ||
-                board.getPiece(fromRow, fromCol + 1) != null) return false;
-            // König darf nicht durch Schach ziehen
+                board.getPiece(fromRow, fromCol - 3) != null) return false;
+            // Koenig darf nicht durch Schach ziehen (d1) oder ins Schach (c1)
+            // b1 muss NICHT frei von Angriff sein (Koenig geht nicht darueber)
             if (isSquareAttacked(board, fromRow, fromCol - 1, color)) return false;
+            if (isSquareAttacked(board, fromRow, fromCol - 2, color)) return false;
         }
         return true;
     }
@@ -722,15 +723,6 @@ public class ChessGame {
     public Color getCurrentPlayer() { return currentPlayer; }
     public GameStatus getStatus() { return status; }
     public MoveValidator getMoveValidator() { return moveValidator; }
-
-    public int getLastMoveFromRow() { return lastMoveFromRow; }
-    public int getLastMoveFromCol() { return lastMoveFromCol; }
-    public int getLastMoveToRow() { return lastMoveToRow; }
-    public int getLastMoveToCol() { return lastMoveToCol; }
-
-    public boolean hasLastMove() {
-        return lastMoveFromRow != -1;
-    }
 
     /**
      * Gibt den 50-Zuege-Zaehler zurueck (nur fuer Tests).

@@ -42,7 +42,7 @@ public class AI {
         for (Move move : allMoves) {
             ChessGame simulatedGame = game.copy();
             if (simulatedGame.makeMove(move.getFromRow(), move.getFromCol(),
-                    move.getToRow(), move.getToCol())) {
+                    move.getToRow(), move.getToCol(), null)) {
                 int score = minimax(simulatedGame, searchDepth - 1,
                         Integer.MIN_VALUE, Integer.MAX_VALUE, !isMaximizing);
 
@@ -78,7 +78,7 @@ public class AI {
             for (Move move : moves) {
                 ChessGame simulatedGame = game.copy();
                 if (simulatedGame.makeMove(move.getFromRow(), move.getFromCol(),
-                        move.getToRow(), move.getToCol())) {
+                        move.getToRow(), move.getToCol(), null)) {
                     int eval = minimax(simulatedGame, depth - 1, alpha, beta, false);
                     maxEval = Math.max(maxEval, eval);
                     alpha = Math.max(alpha, eval);
@@ -91,7 +91,7 @@ public class AI {
             for (Move move : moves) {
                 ChessGame simulatedGame = game.copy();
                 if (simulatedGame.makeMove(move.getFromRow(), move.getFromCol(),
-                        move.getToRow(), move.getToCol())) {
+                        move.getToRow(), move.getToCol(), null)) {
                     int eval = minimax(simulatedGame, depth - 1, alpha, beta, true);
                     minEval = Math.min(minEval, eval);
                     beta = Math.min(beta, eval);

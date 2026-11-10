@@ -6,13 +6,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests fuer die 50-Zuege-Regel.
- * 50 Zuege ohne Bauerzug oder Schlagen → Remis.
- * Bauerzug oder Schlagen setzt den Zaehler zurueck.
+ * 50 Zuege ohne Pawn-Zug oder Schlagen → Remis.
+ * Pawn-Zug oder Schlagen setzt den Zaehler zurueck.
  */
 class FiftyMovesTest {
 
     /**
-     * 50 Zuege (100 Halbzuege) ohne Bauerzug und ohne Schlagen → Remis.
+     * 50 Zuege (100 Halbzuege) ohne Pawn-Zug und ohne Schlagen → Remis.
      * Setzt den Zaehler manuell auf 100 und prueft den Status.
      */
     @Test
@@ -24,8 +24,8 @@ class FiftyMovesTest {
     }
 
     /**
-     * Bauerzug setzt den Zaehler zurueck auf 0 → kein Remis.
-     * Simuliert einen Bauerzug und prueft, dass der Zaehler zurueckgesetzt wurde.
+     * Pawn-Zug setzt den Zaehler auf 0 zurueck → kein Remis.
+     * Simuliert einen Pawn-Zug und prueft, dass der Zaehler zurueckgesetzt wurde.
      */
     @Test
     void pawnMove_resetsCounter() {
@@ -33,8 +33,8 @@ class FiftyMovesTest {
         // Zaehler auf 49 setzen (nahe am Remis)
         game.setFiftyMoveCounter(49);
 
-        // Bauer von e2 nach e4 ziehen (2 Felder)
-        boolean success = game.makeMove(6, 4, 4, 4);
+        // Pawn von e2 nach e4 ziehen (2 Felder)
+        boolean success = game.makeMove(6, 4, 4, 4, null);
         assertTrue(success);
 
         // Der Zaehler sollte auf 0 zurueckgesetzt sein
@@ -43,26 +43,27 @@ class FiftyMovesTest {
     }
 
     /**
-     * Schlagen setzt den Zaehler zurueck auf 0 → kein Remis.
-     * Simuliert einen Bauerzug mit Schlagen (En-Passant oder normal) und prueft den Zaehler.
-     * Da manuelle Brett-Konfiguration komplex ist, wird der Zaehler direkt getestet:
-     * Nach einem Zug mit Schlagen sollte der Zaehler 0 sein.
+     * Schlagen setzt den Zaehler auf 0 zurueck → kein Remis.
+     * Simuliert einen Pawn-Schlag (En Passant oder normal) und prueft den Zaehler.
+     * Da manuelles Brett-Setup komplex ist, wird der Zaehler direkt getestet:
+     * nach einem Zug mit Schlag sollte der Zaehler 0 sein.
      */
     @Test
     void capture_resetsCounter() {
         ChessGame game = new ChessGame();
 
-        // Erster Zug: e2 nach e4 (Bauer, setzt Zaehler auf 0)
-        game.makeMove(6, 4, 4, 4);
+        // Erster Zug: e2 nach e4 (Pawn, setzt Zaehler auf 0)
+        game.makeMove(6, 4, 4, 4, null);
         assertEquals(0, game.getFiftyMoveCounter());
 
-        // Zweiter Zug: d7 nach d5 (Bauer, setzt Zaehler auf 0)
-        game.makeMove(1, 3, 3, 3);
+        // Zweiter Zug: d7 nach d5 (Pawn, setzt Zaehler auf 0)
+        game.makeMove(1, 3, 3, 3, null);
         assertEquals(0, game.getFiftyMoveCounter());
 
-        // En-Passant: e4 schlägt d5 en passant (Bauer + Schlagen → Zaehler auf 0)
-        game.makeMove(4, 4, 2, 3);
+        // En Passant: e4 schlaegt d5 En Passant (Pawn + Schlag → Zaehler auf 0)
+        game.makeMove(4, 4, 2, 3, null);
         assertEquals(0, game.getFiftyMoveCounter());
         assertNotEquals(GameStatus.DRAW_FIFTY_MOVES, game.getStatus());
     }
 }
+

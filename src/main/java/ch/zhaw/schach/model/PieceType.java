@@ -23,7 +23,7 @@ public enum PieceType {
     }
 
     /**
-     * Gibt den Dateinamen der SVG-Figur zurück (z.B. "wk.svg" für weißen König).
+     * Gibt den Dateinamen der SVG-Figur zurueck (z.B. "wk.svg" fuer weissen Koenig).
      * @param color die Farbe der Figur
      */
     public String getSvgFileName(Color color) {
